@@ -1,31 +1,158 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  app:
+    name: "eLocker"
+
+  navbar:
+    brand: "eLocker"
+    companies: "Companies"
+    teams: "Teams"
+    users: "Users"
+    lockers: "Lockers"
+    switcher:
+      aria_label: "Switch user"
+      platform_badge: "platform"
+
+  flash:
+    user_switched: "Switched to %{name}."
+    forbidden_admin: "Only eLocker staff can access that section."
+
+  common:
+    none: "none"
+    not_applicable: "N/A"
+    no_members: "no members"
+    no_teams: "no teams"
+    all: "All"
+
+  filters:
+    apply: "Apply"
+    clear: "Clear filters"
+    name_placeholder: "Search by name…"
+    device_id_placeholder: "Device ID…"
+    member_placeholder: "Search members…"
+    locker_placeholder: "Search lockers…"
+    active_notice: "Filters active"
+
+  pagination:
+    aria_label: "Pagination"
+    per_page: "Per page"
+    prev: "«"
+    next: "»"
+    page_of: "%{page} / %{total}"
+    showing_html: "Showing <strong>%{from}</strong>–<strong>%{to}</strong> of <strong>%{total}</strong>"
+    empty: "No results"
+
+  admin:
+    companies:
+      page_title: "Companies — Admin"
+      heading: "Companies"
+      subtitle: "All tenants on the platform."
+      total:
+        one: "1 total"
+        other: "%{count} total"
+      headers:
+        id: "#"
+        name: "Name"
+        type: "Type"
+        users: "Users"
+        teams: "Teams"
+        lockers: "Lockers"
+      type:
+        platform: "Platform owner"
+        tenant: "Tenant"
+      filters:
+        type_label: "Type"
+        type_platform: "Platform only"
+        type_tenant: "Tenant only"
+    teams:
+      page_title: "Teams — Admin"
+      heading: "Teams"
+      subtitle: "Teams across every tenant."
+      total:
+        one: "1 total"
+        other: "%{count} total"
+      headers:
+        id: "#"
+        name: "Team"
+        company: "Company"
+        members: "Members"
+        lockers: "Lockers in scope"
+      filters:
+        company_label: "Company"
+    users:
+      page_title: "Users — Admin"
+      heading: "Users"
+      subtitle: "All platform and tenant users."
+      total:
+        one: "1 total"
+        other: "%{count} total"
+      headers:
+        id: "#"
+        name: "Name"
+        company: "Company"
+        access: "Access"
+        teams: "Teams"
+      access:
+        platform: "Platform"
+        tenant: "Tenant"
+        full_access_note: "N/A (full access)"
+      filters:
+        company_label: "Company"
+        team_label: "Team"
+    lockers:
+      page_title: "Lockers — Admin"
+      heading: "Lockers"
+      subtitle: "Every locker on the platform."
+      total:
+        one: "1 total"
+        other: "%{count} total"
+      headers:
+        id: "#"
+        name: "Name"
+        device_id: "Device ID"
+        company: "Company"
+        status: "Status"
+        teams: "Teams"
+      filters:
+        company_label: "Company"
+        status_label: "Status"
+        team_label: "Team"
+
+  lockers:
+    page_title: "Lockers"
+    heading: "Lockers"
+    subtitle: "Lockers you can operate."
+    total:
+      one: "1 total"
+      other: "%{count} total"
+    headers:
+      id: "#"
+      name: "Name"
+      device_id: "Device ID"
+      company: "Company"
+      status: "Status"
+    status:
+      open: "Open"
+      closed: "Closed"
+    empty: "No lockers assigned to your teams yet."
+    filters:
+      status_label: "Status"
+
+  locker:
+    back_to_list: "← Back to lockers"
+    details:
+      heading: "Details"
+      id: "ID"
+      name: "Name"
+      device_id: "Device ID"
+      company: "Company"
+      status: "Status"
+      created_at: "Created at"
+    teams:
+      heading: "Teams with access"
+      member_count:
+        one: "1 member"
+        other: "%{count} members"
+      empty: "No teams have access to this locker."
+    activity:
+      heading: "Recent activity"
+      placeholder: "Action history will appear here."

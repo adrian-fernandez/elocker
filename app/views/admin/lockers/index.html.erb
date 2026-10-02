@@ -1,0 +1,120 @@
+<% content_for :title, t("admin.lockers.page_title") %>
+
+<%= turbo_stream_from "lockers" %>
+
+<div class="d-flex align-items-baseline justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="h3 mb-0"><%= t("admin.lockers.heading") %></h1>
+    <small class="text-secondary"><%= t("admin.lockers.subtitle") %></small>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <% if filter_params.any? %>
+      <%= link_to t("filters.clear"), admin_lockers_path, class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+    <span class="badge text-bg-light"><%= t("admin.lockers.total", count: @pagination.total) %></span>
+  </div>
+</div>
+
+<div data-controller="auto-submit">
+  <%= form_with url: admin_lockers_path, method: :get, local: true, html: { id: "admin-filters" } do %><% end %>
+
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th scope="col"><%= t("admin.lockers.headers.id") %></th>
+          <th scope="col"><%= t("admin.lockers.headers.name") %></th>
+          <th scope="col"><%= t("admin.lockers.headers.device_id") %></th>
+          <th scope="col"><%= t("admin.lockers.headers.company") %></th>
+          <th scope="col"><%= t("admin.lockers.headers.status") %></th>
+          <th scope="col"><%= t("admin.lockers.headers.teams") %></th>
+        </tr>
+        <tr class="table-light small">
+          <th></th>
+          <th>
+            <%= text_field_tag :name, params[:name],
+                               form: "admin-filters",
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.name_placeholder"),
+                               data: { action: "input->auto-submit#submitDebounced" } %>
+          </th>
+          <th>
+            <%= text_field_tag :device_id, params[:device_id],
+                               form: "admin-filters",
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.device_id_placeholder"),
+                               data: { action: "input->auto-submit#submitDebounced" } %>
+          </th>
+          <th>
+            <%= select_tag :company_id,
+                  options_from_collection_for_select(@companies, :id, :name, params[:company_id]),
+                  include_blank: t("common.all"),
+                  form: "admin-filters",
+                  class: "form-select form-select-sm",
+                  data: { action: "change->auto-submit#clearThen", clear: "team_id" } %>
+          </th>
+          <th>
+            <%= select_tag :status,
+                  options_for_select(
+                    [[t("common.all"), ""],
+                     [t("lockers.status.open"), "open"],
+                     [t("lockers.status.closed"), "closed"]],
+                    params[:status]
+                  ),
+                  form: "admin-filters",
+                  class: "form-select form-select-sm",
+                  data: { action: "change->auto-submit#submit" } %>
+          </th>
+          <th>
+            <% team_options =
+                 if params[:company_id].present?
+                   options_from_collection_for_select(@teams, :id, :name, params[:team_id])
+                 else
+                   grouped_options_for_select(
+                     @teams.group_by { |t| t.company.name }.transform_values { |ts| ts.map { |t| [t.name, t.id] } },
+                     params[:team_id]
+                   )
+                 end %>
+            <%= select_tag :team_id, team_options,
+                  include_blank: t("common.all"),
+                  form: "admin-filters",
+                  class: "form-select form-select-sm",
+                  data: { action: "change->auto-submit#submit" } %>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @lockers.each do |locker| %>
+          <tr>
+            <td class="text-secondary"><%= locker.id %></td>
+            <td class="fw-semibold">
+              <%= link_to locker.name, admin_locker_path(locker), class: "text-decoration-none" %>
+            </td>
+            <td><code><%= locker.device_id %></code></td>
+            <td>
+              <%= link_to locker.company.name, admin_teams_path(company_id: locker.company_id), class: "text-decoration-none" %>
+            </td>
+            <td>
+              <% if locker.open? %>
+                <span class="badge text-bg-success"><%= t("lockers.status.open") %></span>
+              <% else %>
+                <span class="badge text-bg-secondary"><%= t("lockers.status.closed") %></span>
+              <% end %>
+            </td>
+            <td>
+              <% if locker.teams.any? %>
+                <% locker.teams.each do |team| %>
+                  <%= link_to team.name, admin_users_path(team_id: team.id), class: "badge text-bg-light border me-1 text-decoration-none" %>
+                <% end %>
+              <% else %>
+                <span class="text-secondary fst-italic"><%= t("common.none") %></span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= render "shared/pagination", pagination: @pagination %>

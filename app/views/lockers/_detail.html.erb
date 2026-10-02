@@ -1,0 +1,91 @@
+<%
+  # Locals:
+  # - locker: Locker
+  # - back_path: String
+%>
+
+<%= turbo_stream_from "lockers" %>
+
+<nav aria-label="breadcrumb" class="mb-3">
+  <%= link_to t("locker.back_to_list"), back_path, class: "text-decoration-none small" %>
+</nav>
+
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-4">
+  <div>
+    <h1 class="h3 mb-1"><%= locker.name %></h1>
+    <div class="text-secondary small">
+      <code><%= locker.device_id %></code>
+      <span class="mx-1">·</span>
+      <%= locker.company.name %>
+    </div>
+  </div>
+  <div>
+    <% if locker.open? %>
+      <span class="badge text-bg-success fs-6"><%= t("lockers.status.open") %></span>
+    <% else %>
+      <span class="badge text-bg-secondary fs-6"><%= t("lockers.status.closed") %></span>
+    <% end %>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-5">
+    <div class="card">
+      <div class="card-header fw-semibold"><%= t("locker.details.heading") %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.id") %></dt>
+          <dd class="col-sm-7"><%= locker.id %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.name") %></dt>
+          <dd class="col-sm-7"><%= locker.name %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.device_id") %></dt>
+          <dd class="col-sm-7"><code><%= locker.device_id %></code></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.company") %></dt>
+          <dd class="col-sm-7"><%= locker.company.name %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.status") %></dt>
+          <dd class="col-sm-7">
+            <% if locker.open? %>
+              <span class="badge text-bg-success"><%= t("lockers.status.open") %></span>
+            <% else %>
+              <span class="badge text-bg-secondary"><%= t("lockers.status.closed") %></span>
+            <% end %>
+          </dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.created_at") %></dt>
+          <dd class="col-sm-7"><%= l(locker.created_at, format: :long) %></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="card">
+      <div class="card-header fw-semibold"><%= t("locker.teams.heading") %></div>
+      <div class="card-body">
+        <% if locker.teams.any? %>
+          <ul class="list-unstyled mb-0">
+            <% locker.teams.each do |team| %>
+              <li class="mb-2 d-flex align-items-center gap-2">
+                <span class="badge text-bg-light border"><%= team.name %></span>
+                <span class="text-secondary small"><%= t("locker.teams.member_count", count: team.users.length) %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-secondary fst-italic mb-0"><%= t("locker.teams.empty") %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header fw-semibold"><%= t("locker.activity.heading") %></div>
+      <div class="card-body">
+        <p class="text-secondary fst-italic mb-0"><%= t("locker.activity.placeholder") %></p>
+      </div>
+    </div>
+  </div>
+</div>

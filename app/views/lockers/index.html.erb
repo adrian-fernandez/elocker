@@ -1,0 +1,82 @@
+<% content_for :title, t("lockers.page_title") %>
+
+<%= turbo_stream_from "lockers" %>
+
+<div class="d-flex align-items-baseline justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="h3 mb-0"><%= t("lockers.heading") %></h1>
+    <small class="text-secondary"><%= t("lockers.subtitle") %></small>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <% if filter_params.any? %>
+      <%= link_to t("filters.clear"), lockers_path, class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+    <span class="badge text-bg-light"><%= t("lockers.total", count: @pagination.total) %></span>
+  </div>
+</div>
+
+<div data-controller="auto-submit">
+  <%= form_with url: lockers_path, method: :get, local: true, html: { id: "client-filters" } do %><% end %>
+
+  <% if @pagination.total.positive? %>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th scope="col"><%= t("lockers.headers.id") %></th>
+            <th scope="col"><%= t("lockers.headers.name") %></th>
+            <th scope="col"><%= t("lockers.headers.device_id") %></th>
+            <th scope="col"><%= t("lockers.headers.status") %></th>
+          </tr>
+          <tr class="table-light small">
+            <th></th>
+            <th>
+              <%= text_field_tag :name, params[:name],
+                                 form: "client-filters",
+                                 class: "form-control form-control-sm",
+                                 placeholder: t("filters.name_placeholder"),
+                                 data: { action: "input->auto-submit#submitDebounced" } %>
+            </th>
+            <th></th>
+            <th>
+              <%= select_tag :status,
+                    options_for_select(
+                      [[t("common.all"), ""],
+                       [t("lockers.status.open"), "open"],
+                       [t("lockers.status.closed"), "closed"]],
+                      params[:status]
+                    ),
+                    form: "client-filters",
+                    class: "form-select form-select-sm",
+                    data: { action: "change->auto-submit#submit" } %>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @lockers.each do |locker| %>
+            <tr>
+              <td class="text-secondary"><%= locker.id %></td>
+              <td class="fw-semibold">
+                <%= link_to locker.name, locker_path(locker), class: "text-decoration-none" %>
+              </td>
+              <td><code><%= locker.device_id %></code></td>
+              <td>
+                <% if locker.open? %>
+                  <span class="badge text-bg-success"><%= t("lockers.status.open") %></span>
+                <% else %>
+                  <span class="badge text-bg-secondary"><%= t("lockers.status.closed") %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="alert alert-light border" role="status">
+      <%= t("lockers.empty") %>
+    </div>
+  <% end %>
+</div>
+
+<%= render "shared/pagination", pagination: @pagination %>

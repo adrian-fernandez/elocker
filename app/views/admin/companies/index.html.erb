@@ -1,0 +1,86 @@
+<% content_for :title, t("admin.companies.page_title") %>
+
+<div class="d-flex align-items-baseline justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="h3 mb-0"><%= t("admin.companies.heading") %></h1>
+    <small class="text-secondary"><%= t("admin.companies.subtitle") %></small>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <% if filter_params.any? %>
+      <%= link_to t("filters.clear"), admin_companies_path, class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+    <span class="badge text-bg-light"><%= t("admin.companies.total", count: @pagination.total) %></span>
+  </div>
+</div>
+
+<div data-controller="auto-submit">
+  <%= form_with url: admin_companies_path, method: :get, local: true, html: { id: "admin-filters" } do %><% end %>
+
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead>
+        <tr>
+          <th scope="col"><%= t("admin.companies.headers.id") %></th>
+          <th scope="col"><%= t("admin.companies.headers.name") %></th>
+          <th scope="col"><%= t("admin.companies.headers.type") %></th>
+          <th scope="col" class="text-end"><%= t("admin.companies.headers.users") %></th>
+          <th scope="col" class="text-end"><%= t("admin.companies.headers.teams") %></th>
+          <th scope="col" class="text-end"><%= t("admin.companies.headers.lockers") %></th>
+        </tr>
+        <tr class="table-light small">
+          <th></th>
+          <th>
+            <%= text_field_tag :name, params[:name],
+                               form: "admin-filters",
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.name_placeholder"),
+                               data: { action: "input->auto-submit#submitDebounced" } %>
+          </th>
+          <th>
+            <%= select_tag :type,
+                  options_for_select(
+                    [[t("common.all"), ""],
+                     [t("admin.companies.filters.type_platform"), "platform"],
+                     [t("admin.companies.filters.type_tenant"), "tenant"]],
+                    params[:type]
+                  ),
+                  form: "admin-filters",
+                  class: "form-select form-select-sm",
+                  data: { action: "change->auto-submit#submit" } %>
+          </th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @companies.each do |company| %>
+          <tr>
+            <td class="text-secondary"><%= company.id %></td>
+            <td class="fw-semibold">
+              <%= link_to company.name, admin_teams_path(company_id: company.id), class: "text-decoration-none" %>
+            </td>
+            <td>
+              <% if company.platform_owner? %>
+                <span class="badge text-bg-primary"><%= t("admin.companies.type.platform") %></span>
+              <% else %>
+                <span class="badge text-bg-secondary"><%= t("admin.companies.type.tenant") %></span>
+              <% end %>
+            </td>
+            <td class="text-end">
+              <%= link_to company.users.length, admin_users_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
+            </td>
+            <td class="text-end">
+              <%= link_to company.teams.length, admin_teams_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
+            </td>
+            <td class="text-end">
+              <%= link_to company.lockers.length, admin_lockers_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= render "shared/pagination", pagination: @pagination %>
