@@ -9,7 +9,7 @@
     <% if filter_params.any? %>
       <%= link_to t("filters.clear"), admin_companies_path, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
-    <span class="badge text-bg-light"><%= t("admin.companies.total", count: @pagination.total) %></span>
+    <span class="badge text-bg-light"><%= t("admin.companies.total", count: @companies.total) %></span>
   </div>
 </div>
 
@@ -83,4 +83,4 @@
   </div>
 </div>
 
-<%= render "shared/pagination", pagination: @pagination %>
+<%= render "shared/pagination", pagination: @companies %>

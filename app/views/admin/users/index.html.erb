@@ -9,7 +9,7 @@
     <% if filter_params.any? %>
       <%= link_to t("filters.clear"), admin_users_path, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
-    <span class="badge text-bg-light"><%= t("admin.users.total", count: @pagination.total) %></span>
+    <span class="badge text-bg-light"><%= t("admin.users.total", count: @users.total) %></span>
   </div>
 </div>
 
@@ -95,4 +95,4 @@
   </div>
 </div>
 
-<%= render "shared/pagination", pagination: @pagination %>
+<%= render "shared/pagination", pagination: @users %>

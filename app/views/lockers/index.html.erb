@@ -11,14 +11,14 @@
     <% if filter_params.any? %>
       <%= link_to t("filters.clear"), lockers_path, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
-    <span class="badge text-bg-light"><%= t("lockers.total", count: @pagination.total) %></span>
+    <span class="badge text-bg-light"><%= t("lockers.total", count: @lockers.total) %></span>
   </div>
 </div>
 
 <div data-controller="auto-submit">
   <%= form_with url: lockers_path, method: :get, local: true, html: { id: "client-filters" } do %><% end %>
 
-  <% if @pagination.total.positive? %>
+  <% if @lockers.any? %>
     <div class="table-responsive">
       <table class="table table-striped align-middle">
         <thead>
@@ -79,4 +79,4 @@
   <% end %>
 </div>
 
-<%= render "shared/pagination", pagination: @pagination %>
+<%= render "shared/pagination", pagination: @lockers %>

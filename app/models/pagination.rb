@@ -1,4 +1,12 @@
+# A page of records plus the metadata needed to render pagination controls.
+#
+# Behaves as a collection: supports `each`, `map`, `any?`, `empty?`, `length`,
+# etc. via Enumerable. That lets controllers return a Pagination directly and
+# views iterate it as if it were an array, while still asking it for `total`,
+# `page`, `per_page`, `first_page?`, etc. when rendering the pager.
 class Pagination
+  include Enumerable
+
   DEFAULT_PER_PAGE = 25
   PER_PAGE_OPTIONS = [2, 10, 25, 50].freeze
   MAX_PER_PAGE = 100
@@ -18,6 +26,19 @@ class Pagination
 
   def records
     @records ||= @scope.limit(@per_page).offset(offset)
+  end
+
+  def each(&block)
+    records.each(&block)
+  end
+
+  def length
+    records.length
+  end
+  alias_method :size, :length
+
+  def empty?
+    length.zero?
   end
 
   def offset
