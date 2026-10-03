@@ -1,0 +1,26 @@
+require "rails_helper"
+
+RSpec.describe "Admin::Users", type: :request do
+  describe "GET /admin/users/:id" do
+    it "renders the user detail page for a platform owner" do
+      platform_user = create(:user, :platform_owner)
+      target        = create(:user, name: "Alice Johnson")
+      patch "/session", params: { user_id: platform_user.id }
+
+      get "/admin/users/#{target.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Alice Johnson")
+    end
+
+    it "redirects tenants away from the admin section" do
+      tenant = create(:user)
+      target = create(:user)
+      patch "/session", params: { user_id: tenant.id }
+
+      get "/admin/users/#{target.id}"
+
+      expect(response).to redirect_to(lockers_path)
+    end
+  end
+end

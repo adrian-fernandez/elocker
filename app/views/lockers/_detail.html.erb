@@ -1,7 +1,10 @@
 <%
   # Locals:
-  # - locker: Locker
-  # - back_path: String
+  # - locker:     Locker
+  # - back_path:  String — index path for the current scope
+  # - open_path:  String — POST target for the open operation
+  # - close_path: String — POST target for the close operation
+  # - admin:      Boolean — whether we're rendering under /admin (controls deep links)
 %>
 
 <%= turbo_stream_from "lockers" %>
@@ -57,7 +60,29 @@
 
           <dt class="col-sm-5 text-secondary"><%= t("locker.details.created_at") %></dt>
           <dd class="col-sm-7"><%= l(locker.created_at, format: :long) %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.updated_at") %></dt>
+          <dd class="col-sm-7"><%= l(locker.updated_at, format: :long) %></dd>
         </dl>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header fw-semibold"><%= t("locker.actions.heading") %></div>
+      <div class="card-body">
+        <% if locker.closed? %>
+          <%= button_to t("locker.actions.open"),
+                open_path,
+                method: :post,
+                class: "btn btn-success w-100",
+                data: { turbo_confirm: t("locker.actions.confirm_open") } %>
+        <% else %>
+          <%= button_to t("locker.actions.close"),
+                close_path,
+                method: :post,
+                class: "btn btn-outline-secondary w-100",
+                data: { turbo_confirm: t("locker.actions.confirm_close") } %>
+        <% end %>
       </div>
     </div>
   </div>
@@ -67,14 +92,48 @@
       <div class="card-header fw-semibold"><%= t("locker.teams.heading") %></div>
       <div class="card-body">
         <% if locker.teams.any? %>
-          <ul class="list-unstyled mb-0">
+          <div class="accordion" id="locker-teams-accordion">
             <% locker.teams.each do |team| %>
-              <li class="mb-2 d-flex align-items-center gap-2">
-                <span class="badge text-bg-light border"><%= team.name %></span>
-                <span class="text-secondary small"><%= t("locker.teams.member_count", count: team.users.length) %></span>
-              </li>
+              <% heading_id  = "team-heading-#{team.id}" %>
+              <% collapse_id = "team-collapse-#{team.id}" %>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="<%= heading_id %>">
+                  <button class="accordion-button collapsed"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#<%= collapse_id %>"
+                          aria-expanded="false"
+                          aria-controls="<%= collapse_id %>">
+                    <span class="fw-semibold me-2"><%= team.name %></span>
+                    <span class="badge text-bg-light border">
+                      <%= t("locker.teams.member_count", count: team.users.length) %>
+                    </span>
+                  </button>
+                </h2>
+                <div id="<%= collapse_id %>"
+                     class="accordion-collapse collapse"
+                     aria-labelledby="<%= heading_id %>">
+                  <div class="accordion-body">
+                    <% if team.users.any? %>
+                      <ul class="list-unstyled mb-0">
+                        <% team.users.each do |member| %>
+                          <li class="mb-1">
+                            <% if admin %>
+                              <%= link_to member.name, admin_user_path(member), class: "text-decoration-none" %>
+                            <% else %>
+                              <%= member.name %>
+                            <% end %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    <% else %>
+                      <p class="text-secondary fst-italic mb-0"><%= t("locker.teams.no_members") %></p>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
             <% end %>
-          </ul>
+          </div>
         <% else %>
           <p class="text-secondary fst-italic mb-0"><%= t("locker.teams.empty") %></p>
         <% end %>
@@ -84,7 +143,44 @@
     <div class="card mt-3">
       <div class="card-header fw-semibold"><%= t("locker.activity.heading") %></div>
       <div class="card-body">
-        <p class="text-secondary fst-italic mb-0"><%= t("locker.activity.placeholder") %></p>
+        <% actions = locker.locker_actions.sort_by(&:created_at).reverse %>
+        <% if actions.any? %>
+          <ul class="list-unstyled mb-0">
+            <% actions.each do |action| %>
+              <%
+                badge_class =
+                  case action.action
+                  when "open_request", "close_request" then "text-bg-light border"
+                  when "opened"                        then "text-bg-success"
+                  when "closed"                        then "text-bg-secondary"
+                  end
+              %>
+              <li class="d-flex gap-3 pb-3 mb-3 border-bottom">
+                <div class="flex-shrink-0" style="width: 7rem;">
+                  <div class="small text-secondary"><%= l(action.created_at, format: :long) %></div>
+                </div>
+                <div class="flex-grow-1">
+                  <span class="badge <%= badge_class %> me-1">
+                    <%= t("locker.activity.actions.#{action.action}") %>
+                  </span>
+                  <small class="text-secondary">
+                    <% if action.user %>
+                      <%
+                        linked_name =
+                          admin ? link_to(action.user.name, admin_user_path(action.user), class: "text-decoration-none") : h(action.user.name)
+                      %>
+                      <%= t("locker.activity.by_user_html", name: linked_name) %>
+                    <% else %>
+                      <%= t("locker.activity.by_device") %>
+                    <% end %>
+                  </small>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-secondary fst-italic mb-0"><%= t("locker.activity.empty") %></p>
+        <% end %>
       </div>
     </div>
   </div>

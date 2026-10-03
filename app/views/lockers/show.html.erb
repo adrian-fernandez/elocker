@@ -1,3 +1,8 @@
 <% content_for :title, @locker.name %>
 
-<%= render "lockers/detail", locker: @locker, back_path: lockers_path %>
+<%= render "lockers/detail",
+      locker:     @locker,
+      back_path:  lockers_path,
+      open_path:  open_locker_path(@locker),
+      close_path: close_locker_path(@locker),
+      admin:      false %>

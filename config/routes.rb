@@ -6,11 +6,21 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :companies, only: :index
     resources :teams, only: :index
-    resources :users, only: :index
-    resources :lockers, only: [:index, :show]
+    resources :users, only: [:index, :show]
+    resources :lockers, only: [:index, :show] do
+      member do
+        post :open
+        post :close
+      end
+    end
   end
 
-  resources :lockers, only: [:index, :show]
+  resources :lockers, only: [:index, :show] do
+    member do
+      post :open
+      post :close
+    end
+  end
 
   root "home#index"
 end

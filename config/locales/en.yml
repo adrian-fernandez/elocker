@@ -15,6 +15,9 @@ en:
   flash:
     user_switched: "Switched to %{name}."
     forbidden_admin: "Only eLocker staff can access that section."
+    locker_updated: "Locker is now %{status}."
+    locker_not_allowed: "You are not allowed to operate that locker."
+    locker_device_error: "The device rejected the command: %{message}"
 
   common:
     none: "none"
@@ -98,6 +101,15 @@ en:
       filters:
         company_label: "Company"
         team_label: "Team"
+      show:
+        back_to_list: "← Back to users"
+        details_heading: "Details"
+        teams_heading: "Teams"
+        no_teams: "This user is not a member of any team."
+        full_access_note: "Platform owner — operates every locker on the platform."
+        locker_count:
+          one: "1 locker"
+          other: "%{count} lockers"
     lockers:
       page_title: "Lockers — Admin"
       heading: "Lockers"
@@ -147,12 +159,28 @@ en:
       company: "Company"
       status: "Status"
       created_at: "Created at"
+      updated_at: "Updated at"
     teams:
       heading: "Teams with access"
       member_count:
         one: "1 member"
         other: "%{count} members"
       empty: "No teams have access to this locker."
+      no_members: "No members in this team."
     activity:
       heading: "Recent activity"
-      placeholder: "Action history will appear here."
+      empty: "No activity yet."
+      by_user_html: "by %{name}"
+      by_device: "device response"
+      actions:
+        open_request: "Open requested"
+        close_request: "Close requested"
+        opened: "Opened"
+        closed: "Closed"
+    actions:
+      heading: "Actions"
+      open: "Open locker"
+      close: "Close locker"
+      confirm_open: "Open this locker?"
+      confirm_close: "Close this locker?"
+      disabled_hint: "Already %{status}; no action available."

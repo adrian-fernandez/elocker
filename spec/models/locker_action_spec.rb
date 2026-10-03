@@ -27,19 +27,35 @@ RSpec.describe LockerAction, type: :model do
   end
 
   describe "composite tenant integrity" do
-    it "blocks a locker action with a locker from a different company" do
-      amazon_user  = create(:user)
-      dpd_locker   = create(:locker, company: create(:company))
+    it "requires the action's company_id to match its locker's company_id" do
+      locker = create(:locker)
+      user   = create(:user)
 
       insert_sql = <<~SQL
         INSERT INTO locker_actions
           (locker_id, user_id, company_id, action, created_at, updated_at)
         VALUES
-          (#{dpd_locker.id}, #{amazon_user.id}, #{amazon_user.company_id}, 0, NOW(), NOW())
+          (#{locker.id}, #{user.id}, #{create(:company).id}, 0, NOW(), NOW())
       SQL
 
       expect { ActiveRecord::Base.connection.execute(insert_sql) }
         .to raise_error(ActiveRecord::StatementInvalid)
+    end
+
+    it "allows a platform-owner user to operate lockers in another company" do
+      amazon         = create(:company, name: "Amazon")
+      amazon_locker  = create(:locker, company: amazon)
+      platform_user  = create(:user, :platform_owner)
+
+      action = LockerAction.new(
+        locker: amazon_locker,
+        user: platform_user,
+        company_id: amazon.id,
+        action: :open_request
+      )
+
+      expect(action).to be_valid
+      expect { action.save! }.not_to raise_error
     end
   end
 end

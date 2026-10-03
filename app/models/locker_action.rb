@@ -9,4 +9,6 @@ class LockerAction < ApplicationRecord
     opened: 2,
     closed: 3
   }
+
+  after_create_commit -> { broadcast_refresh_to "lockers" }
 end

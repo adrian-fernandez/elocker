@@ -4,4 +4,8 @@ class Admin::UsersController < Admin::BaseController
     @companies = Company.order(:name)
     @teams = ::Teams::OptionsFor.call(company_id: params[:company_id])
   end
+
+  def show
+    @user = User.includes(:company, teams: :lockers).find(params[:id])
+  end
 end

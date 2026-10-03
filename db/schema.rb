@@ -93,7 +93,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
   add_foreign_key "locker_actions", "lockers"
   add_foreign_key "locker_actions", "lockers", column: ["locker_id", "company_id"], primary_key: ["id", "company_id"], name: "locker_actions_locker_company_fk"
   add_foreign_key "locker_actions", "users"
-  add_foreign_key "locker_actions", "users", column: ["user_id", "company_id"], primary_key: ["id", "company_id"], name: "locker_actions_user_company_fk"
   add_foreign_key "locker_team_permissions", "companies"
   add_foreign_key "locker_team_permissions", "lockers"
   add_foreign_key "locker_team_permissions", "lockers", column: ["locker_id", "company_id"], primary_key: ["id", "company_id"], name: "locker_team_permissions_locker_company_fk"

@@ -1,0 +1,67 @@
+<% content_for :title, @user.name %>
+
+<nav aria-label="breadcrumb" class="mb-3">
+  <%= link_to t("admin.users.show.back_to_list"), admin_users_path, class: "text-decoration-none small" %>
+</nav>
+
+<div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-4">
+  <div>
+    <h1 class="h3 mb-1"><%= @user.name %></h1>
+    <div class="text-secondary small">
+      <%= @user.company.name %>
+    </div>
+  </div>
+  <div>
+    <% if @user.platform_owner? %>
+      <span class="badge text-bg-primary fs-6"><%= t("admin.users.access.platform") %></span>
+    <% else %>
+      <span class="badge text-bg-secondary fs-6"><%= t("admin.users.access.tenant") %></span>
+    <% end %>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-5">
+    <div class="card">
+      <div class="card-header fw-semibold"><%= t("admin.users.show.details_heading") %></div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-5 text-secondary"><%= t("admin.users.headers.id") %></dt>
+          <dd class="col-sm-7"><%= @user.id %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("admin.users.headers.name") %></dt>
+          <dd class="col-sm-7"><%= @user.name %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("admin.users.headers.company") %></dt>
+          <dd class="col-sm-7">
+            <%= link_to @user.company.name, admin_teams_path(company_id: @user.company_id), class: "text-decoration-none" %>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="card">
+      <div class="card-header fw-semibold"><%= t("admin.users.show.teams_heading") %></div>
+      <div class="card-body">
+        <% if @user.platform_owner? %>
+          <p class="text-secondary fst-italic mb-0"><%= t("admin.users.show.full_access_note") %></p>
+        <% elsif @user.teams.any? %>
+          <ul class="list-unstyled mb-0">
+            <% @user.teams.each do |team| %>
+              <li class="mb-2 d-flex align-items-center gap-2">
+                <%= link_to team.name, admin_users_path(team_id: team.id), class: "badge text-bg-light border text-decoration-none" %>
+                <span class="text-secondary small">
+                  <%= t("admin.users.show.locker_count", count: team.lockers.length) %>
+                </span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-secondary fst-italic mb-0"><%= t("admin.users.show.no_teams") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -82,3 +82,6 @@ Shoulda::Matchers.configure do |config|
     with.library :rails
   end
 end
+
+# Lets `.to not_change(...).and not_change(...)` express compound negations.
+RSpec::Matchers.define_negated_matcher :not_change, :change
