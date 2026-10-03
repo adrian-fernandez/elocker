@@ -22,5 +22,7 @@ Rails.application.routes.draw do
     end
   end
 
+  get "activity", to: "activity#index", as: :activity
+
   root "home#index"
 end

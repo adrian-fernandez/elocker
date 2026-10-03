@@ -63,6 +63,28 @@
 
           <dt class="col-sm-5 text-secondary"><%= t("locker.details.updated_at") %></dt>
           <dd class="col-sm-7"><%= l(locker.updated_at, format: :long) %></dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.last_status_changed_at") %></dt>
+          <dd class="col-sm-7">
+            <% if locker.last_status_changed_at %>
+              <%= l(locker.last_status_changed_at, format: :long) %>
+            <% else %>
+              <span class="text-secondary"><%= t("locker.details.never_changed") %></span>
+            <% end %>
+          </dd>
+
+          <dt class="col-sm-5 text-secondary"><%= t("locker.details.last_status_changed_by") %></dt>
+          <dd class="col-sm-7">
+            <% if locker.last_status_changed_by %>
+              <% if admin %>
+                <%= link_to locker.last_status_changed_by.name, admin_user_path(locker.last_status_changed_by), class: "text-decoration-none" %>
+              <% else %>
+                <%= locker.last_status_changed_by.name %>
+              <% end %>
+            <% else %>
+              <span class="text-secondary"><%= t("locker.details.changed_by_device") %></span>
+            <% end %>
+          </dd>
         </dl>
       </div>
     </div>
@@ -140,48 +162,5 @@
       </div>
     </div>
 
-    <div class="card mt-3">
-      <div class="card-header fw-semibold"><%= t("locker.activity.heading") %></div>
-      <div class="card-body">
-        <% actions = locker.locker_actions.sort_by(&:created_at).reverse %>
-        <% if actions.any? %>
-          <ul class="list-unstyled mb-0">
-            <% actions.each do |action| %>
-              <%
-                badge_class =
-                  case action.action
-                  when "open_request", "close_request" then "text-bg-light border"
-                  when "opened"                        then "text-bg-success"
-                  when "closed"                        then "text-bg-secondary"
-                  end
-              %>
-              <li class="d-flex gap-3 pb-3 mb-3 border-bottom">
-                <div class="flex-shrink-0" style="width: 7rem;">
-                  <div class="small text-secondary"><%= l(action.created_at, format: :long) %></div>
-                </div>
-                <div class="flex-grow-1">
-                  <span class="badge <%= badge_class %> me-1">
-                    <%= t("locker.activity.actions.#{action.action}") %>
-                  </span>
-                  <small class="text-secondary">
-                    <% if action.user %>
-                      <%
-                        linked_name =
-                          admin ? link_to(action.user.name, admin_user_path(action.user), class: "text-decoration-none") : h(action.user.name)
-                      %>
-                      <%= t("locker.activity.by_user_html", name: linked_name) %>
-                    <% else %>
-                      <%= t("locker.activity.by_device") %>
-                    <% end %>
-                  </small>
-                </div>
-              </li>
-            <% end %>
-          </ul>
-        <% else %>
-          <p class="text-secondary fst-italic mb-0"><%= t("locker.activity.empty") %></p>
-        <% end %>
-      </div>
-    </div>
   </div>
 </div>

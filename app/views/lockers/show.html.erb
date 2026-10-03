@@ -6,3 +6,18 @@
       open_path:  open_locker_path(@locker),
       close_path: close_locker_path(@locker),
       admin:      false %>
+
+<section class="mt-4">
+  <h2 class="h5 mb-3"><%= t("activity.heading") %></h2>
+  <p class="text-secondary small"><%= t("activity.subtitle_locker") %></p>
+
+  <%= render "activity/table",
+        locker_actions: @locker_actions,
+        lockers:        nil,
+        companies:      @companies,
+        users:          @users,
+        teams:          @teams,
+        filter_url:     locker_path(@locker),
+        admin:          false,
+        locker_scope:   @locker %>
+</section>

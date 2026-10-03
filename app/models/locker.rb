@@ -1,5 +1,8 @@
 class Locker < ApplicationRecord
   belongs_to :company
+  belongs_to :last_status_changed_by,
+             class_name: "User",
+             optional: true
 
   has_many :locker_team_permissions
   has_many :teams, through: :locker_team_permissions

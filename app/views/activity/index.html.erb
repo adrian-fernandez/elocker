@@ -1,0 +1,21 @@
+<% content_for :title, t("activity.page_title") %>
+
+<%= turbo_stream_from "lockers" %>
+
+<div class="d-flex align-items-baseline justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="h3 mb-0"><%= t("activity.heading") %></h1>
+    <small class="text-secondary"><%= t("activity.subtitle_global") %></small>
+  </div>
+  <span class="badge text-bg-light"><%= t("activity.total", count: @locker_actions.total) %></span>
+</div>
+
+<%= render "activity/table",
+      locker_actions: @locker_actions,
+      lockers:        @lockers,
+      companies:      @companies,
+      users:          @users,
+      teams:          @teams,
+      filter_url:     activity_path,
+      admin:          platform_owner?,
+      locker_scope:   nil %>

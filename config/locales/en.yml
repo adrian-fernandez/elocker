@@ -8,6 +8,7 @@ en:
     teams: "Teams"
     users: "Users"
     lockers: "Lockers"
+    activity: "Activity"
     switcher:
       aria_label: "Switch user"
       platform_badge: "platform"
@@ -129,6 +130,7 @@ en:
         device_id: "Device ID"
         company: "Company"
         status: "Status"
+        last_change: "Last change"
         teams: "Teams"
       filters:
         company_label: "Company"
@@ -148,12 +150,48 @@ en:
       device_id: "Device ID"
       company: "Company"
       status: "Status"
+      last_change: "Last change"
     status:
       open: "Open"
       closed: "Closed"
     empty: "No lockers assigned to your teams yet."
+    last_change:
+      never: "—"
+      by_html: "by %{name}"
+      by_device: "device"
     filters:
       status_label: "Status"
+
+  activity:
+    page_title: "Activity"
+    heading: "Activity"
+    subtitle_global: "Open and close actions on every locker you can see."
+    subtitle_locker: "Open and close actions on this locker."
+    total:
+      one: "1 action"
+      other: "%{count} actions"
+    headers:
+      when: "When"
+      locker: "Locker"
+      action: "Action"
+      actor: "Actor"
+      actor_type: "Type"
+    filters:
+      from: "From"
+      to: "To"
+      locker: "Locker"
+      user: "User"
+      team: "Team"
+      action: "Action"
+      actor_type: "Actor type"
+    actor_types:
+      platform: "Platform owner"
+      tenant: "Tenant employee"
+      device: "Device"
+    apply: "Apply filters"
+    empty: "No actions match the current filters."
+    actor:
+      device: "device"
 
   locker:
     back_to_list: "← Back to lockers"
@@ -166,6 +204,10 @@ en:
       status: "Status"
       created_at: "Created at"
       updated_at: "Updated at"
+      last_status_changed_at: "Last status change"
+      last_status_changed_by: "Changed by"
+      changed_by_device: "device"
+      never_changed: "—"
     teams:
       heading: "Teams with access"
       member_count:

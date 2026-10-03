@@ -79,7 +79,11 @@ module Lockers
           company: @locker.company,
           action: response_action
         )
-        @locker.update!(status: final_status)
+        @locker.update!(
+          status: final_status,
+          last_status_changed_at: Time.current,
+          last_status_changed_by: @user
+        )
       end
 
       def dispatch!

@@ -26,6 +26,9 @@
             <%= link_to t("navbar.lockers"), lockers_path, class: "nav-link #{'active' if controller_path == 'lockers'}" %>
           </li>
         <% end %>
+        <li class="nav-item">
+          <%= link_to t("navbar.activity"), activity_path, class: "nav-link #{'active' if controller_path == 'activity'}" %>
+        </li>
       </ul>
 
       <div class="dropdown">

@@ -27,6 +27,7 @@
           <th scope="col"><%= t("admin.lockers.headers.device_id") %></th>
           <th scope="col"><%= t("admin.lockers.headers.company") %></th>
           <th scope="col"><%= t("admin.lockers.headers.status") %></th>
+          <th scope="col"><%= t("admin.lockers.headers.last_change") %></th>
           <th scope="col"><%= t("admin.lockers.headers.teams") %></th>
         </tr>
         <tr class="table-light small">
@@ -65,6 +66,7 @@
                   class: "form-select form-select-sm",
                   data: { action: "change->auto-submit#submit" } %>
           </th>
+          <th></th>
           <th>
             <% team_options =
                  if params[:company_id].present?
@@ -99,6 +101,23 @@
                 <span class="badge text-bg-success"><%= t("lockers.status.open") %></span>
               <% else %>
                 <span class="badge text-bg-secondary"><%= t("lockers.status.closed") %></span>
+              <% end %>
+            </td>
+            <td class="small">
+              <% if locker.last_status_changed_at %>
+                <div><%= l(locker.last_status_changed_at, format: :short) %></div>
+                <div class="text-secondary">
+                  <% if locker.last_status_changed_by %>
+                    <%= t("lockers.last_change.by_html",
+                          name: link_to(locker.last_status_changed_by.name,
+                                        admin_user_path(locker.last_status_changed_by),
+                                        class: "text-decoration-none")) %>
+                  <% else %>
+                    <%= t("lockers.last_change.by_device") %>
+                  <% end %>
+                </div>
+              <% else %>
+                <span class="text-secondary"><%= t("lockers.last_change.never") %></span>
               <% end %>
             </td>
             <td>

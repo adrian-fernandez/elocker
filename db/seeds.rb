@@ -313,6 +313,14 @@ LockerAction.create!(
   created_at: 1.hour.ago
 )
 
+# Backfill last_status_changed_{at,by} on each locker so the "last change"
+# column shows the real history time rather than the create-timestamp.
+amazon_locker_1.update_columns(last_status_changed_at: 1.hour.ago + 2.seconds, last_status_changed_by_id: bob.id)
+amazon_locker_2.update_columns(last_status_changed_at: 2.hours.ago,                 last_status_changed_by_id: nil)
+amazon_locker_3.update_columns(last_status_changed_at: amazon_locker_3.created_at,  last_status_changed_by_id: nil)
+dpd_locker_1.update_columns(   last_status_changed_at: 45.minutes.ago + 2.seconds,  last_status_changed_by_id: david.id)
+dpd_locker_2.update_columns(   last_status_changed_at: 1.hour.ago,                  last_status_changed_by_id: nil)
+
 puts
 puts "Seed completed successfully."
 puts

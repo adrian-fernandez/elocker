@@ -52,12 +52,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
     t.string "device_id", null: false
     t.integer "status", default: 0, null: false
     t.bigint "company_id", null: false
+    t.datetime "last_status_changed_at"
+    t.bigint "last_status_changed_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "status"], name: "index_lockers_on_company_id_and_status"
     t.index ["company_id"], name: "index_lockers_on_company_id"
     t.index ["device_id"], name: "index_lockers_on_device_id", unique: true
     t.index ["id", "company_id"], name: "index_lockers_on_id_and_company_id", unique: true
+    t.index ["last_status_changed_at"], name: "index_lockers_on_last_status_changed_at"
+    t.index ["last_status_changed_by_id"], name: "index_lockers_on_last_status_changed_by_id"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -99,6 +103,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
   add_foreign_key "locker_team_permissions", "teams"
   add_foreign_key "locker_team_permissions", "teams", column: ["team_id", "company_id"], primary_key: ["id", "company_id"], name: "locker_team_permissions_team_company_fk"
   add_foreign_key "lockers", "companies"
+  add_foreign_key "lockers", "users", column: "last_status_changed_by_id"
   add_foreign_key "teams", "companies"
   add_foreign_key "teams_users", "companies"
   add_foreign_key "teams_users", "teams"
