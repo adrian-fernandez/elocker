@@ -1,0 +1,24 @@
+<%
+  # Locals:
+  # - locker:     Locker
+  # - open_path:  String — POST target for the Open operation
+  # - close_path: String — POST target for the Close operation
+%>
+<div class="card">
+  <div class="card-header fw-semibold"><%= t("locker.actions.heading") %></div>
+  <div class="card-body">
+    <% if locker.closed? %>
+      <%= button_to t("locker.actions.open"),
+            open_path,
+            method: :post,
+            class: "btn btn-success w-100",
+            data: { turbo_confirm: t("locker.actions.confirm_open") } %>
+    <% else %>
+      <%= button_to t("locker.actions.close"),
+            close_path,
+            method: :post,
+            class: "btn btn-outline-secondary w-100",
+            data: { turbo_confirm: t("locker.actions.confirm_close") } %>
+    <% end %>
+  </div>
+</div>

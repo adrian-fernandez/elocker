@@ -1,0 +1,54 @@
+<%
+  # Locals:
+  # - locker: Locker
+  # - admin:  Boolean — when true, user names link to admin_user_path
+%>
+<div class="card">
+  <div class="card-header fw-semibold"><%= t("locker.details.heading") %></div>
+  <div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.id") %></dt>
+      <dd class="col-sm-7"><%= locker.id %></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.name") %></dt>
+      <dd class="col-sm-7"><%= locker.name %></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.device_id") %></dt>
+      <dd class="col-sm-7"><code><%= locker.device_id %></code></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.company") %></dt>
+      <dd class="col-sm-7"><%= locker.company.name %></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.status") %></dt>
+      <dd class="col-sm-7"><%= locker_status_badge(locker.status) %></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.created_at") %></dt>
+      <dd class="col-sm-7"><%= l(locker.created_at, format: :long) %></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.updated_at") %></dt>
+      <dd class="col-sm-7"><%= l(locker.updated_at, format: :long) %></dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.last_status_changed_at") %></dt>
+      <dd class="col-sm-7">
+        <% if locker.last_status_changed_at %>
+          <%= l(locker.last_status_changed_at, format: :long) %>
+        <% else %>
+          <span class="text-secondary"><%= t("locker.details.never_changed") %></span>
+        <% end %>
+      </dd>
+
+      <dt class="col-sm-5 text-secondary"><%= t("locker.details.last_status_changed_by") %></dt>
+      <dd class="col-sm-7">
+        <% if locker.last_status_changed_by %>
+          <% if admin %>
+            <%= link_to locker.last_status_changed_by.name, admin_user_path(locker.last_status_changed_by), class: "text-decoration-none" %>
+          <% else %>
+            <%= locker.last_status_changed_by.name %>
+          <% end %>
+        <% else %>
+          <span class="text-secondary"><%= t("locker.details.changed_by_device") %></span>
+        <% end %>
+      </dd>
+    </dl>
+  </div>
+</div>

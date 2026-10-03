@@ -1,5 +1,6 @@
 class LockersController < ApplicationController
   include ActivityFilterCollections
+  include LockerOperations
 
   def index
     @lockers = Lockers::Fetcher.call(
@@ -23,29 +24,9 @@ class LockersController < ApplicationController
     @teams = scoped_filter_teams
   end
 
-  def open
-    operate_with(Lockers::Operators::Open)
-  end
-
-  def close
-    operate_with(Lockers::Operators::Close)
-  end
-
   private
 
-  def scope
-    Lockers::VisibleTo.call(user: current_user)
-  end
-
-  def operate_with(operator)
-    locker = scope.find(params[:id])
-    operator.call(locker:, user: current_user)
-    redirect_to locker_path(locker), notice: t("flash.locker_updated", status: locker.reload.status)
-  rescue Lockers::Operators::Base::NotAllowedError
-    render_forbidden!(t("errors.forbidden.locker_not_allowed"))
-  rescue Lockers::Operators::Base::InvalidStateError => e
-    redirect_to locker_path(params[:id]), alert: e.message
-  rescue Lockers::Operators::Base::DeviceError => e
-    redirect_to locker_path(params[:id]), alert: t("flash.locker_device_error", message: e.message)
+  def locker_route(locker_or_id)
+    locker_path(locker_or_id)
   end
 end

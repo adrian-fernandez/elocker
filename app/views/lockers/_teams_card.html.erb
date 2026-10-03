@@ -1,0 +1,56 @@
+<%
+  # Locals:
+  # - locker: Locker
+  # - admin:  Boolean — when true, member names link to admin_user_path
+%>
+<div class="card">
+  <div class="card-header fw-semibold"><%= t("locker.teams.heading") %></div>
+  <div class="card-body">
+    <% if locker.teams.any? %>
+      <div class="accordion" id="locker-teams-accordion">
+        <% locker.teams.each do |team| %>
+          <% heading_id  = "team-heading-#{team.id}" %>
+          <% collapse_id = "team-collapse-#{team.id}" %>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="<%= heading_id %>">
+              <button class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#<%= collapse_id %>"
+                      aria-expanded="false"
+                      aria-controls="<%= collapse_id %>">
+                <span class="fw-semibold me-2"><%= team.name %></span>
+                <span class="badge text-bg-light border">
+                  <%= t("locker.teams.member_count", count: team.users.length) %>
+                </span>
+              </button>
+            </h2>
+            <div id="<%= collapse_id %>"
+                 class="accordion-collapse collapse"
+                 aria-labelledby="<%= heading_id %>">
+              <div class="accordion-body">
+                <% if team.users.any? %>
+                  <ul class="list-unstyled mb-0">
+                    <% team.users.each do |member| %>
+                      <li class="mb-1">
+                        <% if admin %>
+                          <%= link_to member.name, admin_user_path(member), class: "text-decoration-none" %>
+                        <% else %>
+                          <%= member.name %>
+                        <% end %>
+                      </li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  <p class="text-secondary fst-italic mb-0"><%= t("locker.teams.no_members") %></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-secondary fst-italic mb-0"><%= t("locker.teams.empty") %></p>
+    <% end %>
+  </div>
+</div>

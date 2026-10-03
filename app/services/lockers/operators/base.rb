@@ -28,13 +28,21 @@ module Lockers
       end
 
       def call
+        # Authorization is a read-only check and lives OUTSIDE the lock so a
+        # 403 doesn't need to spin a DB row lock.
         authorize!
-        validate_state!
 
         # `requires_new: true` so a device failure rolls back the request
         # row via a savepoint, even if we're already inside a surrounding
         # transaction (test wrappers, user-code batches, etc.).
         ActiveRecord::Base.transaction(requires_new: true) do
+          # SELECT … FOR UPDATE on this locker row. Two concurrent open/close
+          # requests on the same locker serialize here: the second one blocks
+          # until the first commits, then re-reads `@locker` and will fail
+          # `validate_state!` because status is already in the target state.
+          @locker.lock!
+
+          validate_state!
           create_request!
           response = dispatch!
           raise DeviceError, response.message unless response.ok?

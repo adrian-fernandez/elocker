@@ -62,13 +62,7 @@
                 <%= link_to locker.name, locker_path(locker), class: "text-decoration-none" %>
               </td>
               <td><code><%= locker.device_id %></code></td>
-              <td>
-                <% if locker.open? %>
-                  <span class="badge text-bg-success"><%= t("lockers.status.open") %></span>
-                <% else %>
-                  <span class="badge text-bg-secondary"><%= t("lockers.status.closed") %></span>
-                <% end %>
-              </td>
+              <td><%= locker_status_badge(locker.status) %></td>
               <td class="small">
                 <% if locker.last_status_changed_at %>
                   <div><%= l(locker.last_status_changed_at, format: :short) %></div>

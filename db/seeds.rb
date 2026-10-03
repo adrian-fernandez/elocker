@@ -1,5 +1,10 @@
 # db/seeds.rb
 
+# Everything happens inside one transaction so a partial failure never leaves
+# the DB half-cleaned / half-populated. Idempotent on re-run via the
+# delete_all cascade at the top.
+ActiveRecord::Base.transaction do
+
 puts "Cleaning database..."
 
 LockerAction.delete_all
@@ -345,3 +350,5 @@ puts "Lockers:"
 Locker.includes(:company).find_each do |locker|
   puts "  #{locker.name} -- #{locker.status} -- #{locker.company.name}"
 end
+
+end # ActiveRecord::Base.transaction

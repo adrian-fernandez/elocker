@@ -99,6 +99,17 @@ RSpec.describe Lockers::Operators::Open do
     end
   end
 
+  describe "row-level lock" do
+    it "acquires a SELECT FOR UPDATE on the locker before mutating state" do
+      support = create(:user, :platform_owner)
+      allow(locker).to receive(:lock!).and_call_original
+
+      described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+
+      expect(locker).to have_received(:lock!).once
+    end
+  end
+
   describe "dependency injection of the api driver" do
     it "uses the injected driver instead of the default factory" do
       support = create(:user, :platform_owner)
