@@ -1,0 +1,12 @@
+<% content_for :title, t("errors.forbidden.page_title") %>
+
+<div class="d-flex align-items-start flex-column gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <span class="badge text-bg-danger fs-6">403</span>
+    <h1 class="h3 mb-0"><%= t("errors.forbidden.heading") %></h1>
+  </div>
+
+  <p class="text-secondary mb-0"><%= @forbidden_reason %></p>
+
+  <%= link_to t("errors.forbidden.back_to_lockers"), lockers_path, class: "btn btn-outline-secondary" %>
+</div>

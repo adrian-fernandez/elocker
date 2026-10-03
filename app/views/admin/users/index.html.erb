@@ -73,14 +73,14 @@
               <%= link_to user.company.name, admin_teams_path(company_id: user.company_id), class: "text-decoration-none" %>
             </td>
             <td>
-              <% if user.platform_owner? %>
+              <% if platform_owner?(user) %>
                 <span class="badge text-bg-primary"><%= t("admin.users.access.platform") %></span>
               <% else %>
                 <span class="badge text-bg-secondary"><%= t("admin.users.access.tenant") %></span>
               <% end %>
             </td>
             <td>
-              <% if user.platform_owner? %>
+              <% if platform_owner?(user) %>
                 <span class="text-secondary fst-italic"><%= t("admin.users.access.full_access_note") %></span>
               <% elsif user.teams.any? %>
                 <% user.teams.each do |team| %>

@@ -4,16 +4,17 @@ module Lockers
   # - Platform owner (eLocker staff) → every locker.
   # - Tenant user → only lockers whose team they belong to, scoped to their company.
   #
-  # Reads naturally at the call site: `Lockers::VisibleTo.call(user: current_user)`.
-  # Used by both the list path (via `Lockers::Fetcher`) and the show path.
+  # Delegates the "is this user elevated?" check to `Users::PlatformOwnerChecker`
+  # so the policy stays in one place.
   class VisibleTo < ApplicationService
-    def initialize(user:, model: Locker)
+    def initialize(user:, model: Locker, checker: Users::PlatformOwnerChecker)
       @user = user
       @model = model
+      @checker = checker
     end
 
     def call
-      return @model.all if @user.platform_owner?
+      return @model.all if @checker.call(user: @user)
 
       @model
         .joins(locker_team_permissions: { team: :users })

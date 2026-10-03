@@ -7,14 +7,13 @@ RSpec.describe User, type: :model do
     it { is_expected.to have_many(:locker_actions) }
   end
 
-  describe "#platform_owner?" do
-    it "delegates to its company" do
-      platform_user = create(:user, :platform_owner)
-      tenant_user   = create(:user)
-
-      expect(platform_user).to be_platform_owner
-      expect(tenant_user).not_to be_platform_owner
-    end
+  # Note: the policy "is this user elevated?" lives in
+  # Users::PlatformOwnerChecker, not here. The User model intentionally
+  # does NOT expose a platform_owner? predicate so call sites can't
+  # couple to the current implementation (company-based) and will have
+  # to update if the policy evolves (per-user flag, roles, etc.).
+  it "does not expose a platform_owner? predicate" do
+    expect(described_class.instance_methods).not_to include(:platform_owner?)
   end
 
   describe "composite tenant integrity" do

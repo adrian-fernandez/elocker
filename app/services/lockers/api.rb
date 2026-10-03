@@ -20,7 +20,7 @@ module Lockers
       klass = DRIVERS.fetch(driver) do
         raise ArgumentError, "Unknown locker driver #{driver.inspect}"
       end
-      klass.new(locker: locker)
+      klass.new(locker:)
     end
   end
 end

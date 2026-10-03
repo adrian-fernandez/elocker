@@ -12,7 +12,7 @@
     </div>
   </div>
   <div>
-    <% if @user.platform_owner? %>
+    <% if platform_owner?(@user) %>
       <span class="badge text-bg-primary fs-6"><%= t("admin.users.access.platform") %></span>
     <% else %>
       <span class="badge text-bg-secondary fs-6"><%= t("admin.users.access.tenant") %></span>
@@ -45,7 +45,7 @@
     <div class="card">
       <div class="card-header fw-semibold"><%= t("admin.users.show.teams_heading") %></div>
       <div class="card-body">
-        <% if @user.platform_owner? %>
+        <% if platform_owner?(@user) %>
           <p class="text-secondary fst-italic mb-0"><%= t("admin.users.show.full_access_note") %></p>
         <% elsif @user.teams.any? %>
           <ul class="list-unstyled mb-0">

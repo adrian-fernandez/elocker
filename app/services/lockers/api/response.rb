@@ -6,7 +6,7 @@ module Lockers
     #   Lockers::Api::Response.failure("Timeout contacting device")
     Response = Data.define(:ok, :message) do
       def self.success                 = new(ok: true, message: nil)
-      def self.failure(message)        = new(ok: false, message: message)
+      def self.failure(message)        = new(ok: false, message:)
 
       def ok?    = ok
       def failed? = !ok

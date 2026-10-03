@@ -14,10 +14,16 @@ en:
 
   flash:
     user_switched: "Switched to %{name}."
-    forbidden_admin: "Only eLocker staff can access that section."
     locker_updated: "Locker is now %{status}."
-    locker_not_allowed: "You are not allowed to operate that locker."
     locker_device_error: "The device rejected the command: %{message}"
+
+  errors:
+    forbidden:
+      page_title: "Forbidden"
+      heading: "Access denied"
+      forbidden_admin: "Only eLocker staff can access the admin section."
+      locker_not_allowed: "You are not allowed to operate that locker."
+      back_to_lockers: "Back to lockers"
 
   common:
     none: "none"

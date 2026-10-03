@@ -2,7 +2,7 @@ class Admin::LockersController < Admin::BaseController
   def index
     @lockers = ::Lockers::Fetcher.call(
       user: current_user,
-      params: params,
+      params:,
       includes: [:company, :teams]
     )
     @companies = Company.order(:name)
@@ -31,10 +31,10 @@ class Admin::LockersController < Admin::BaseController
 
   def operate_with(operator)
     locker = scope.find(params[:id])
-    operator.call(locker: locker, user: current_user)
+    operator.call(locker:, user: current_user)
     redirect_to admin_locker_path(locker), notice: t("flash.locker_updated", status: locker.reload.status)
   rescue ::Lockers::Operators::Base::NotAllowedError
-    redirect_to admin_lockers_path, alert: t("flash.locker_not_allowed")
+    render_forbidden!(t("errors.forbidden.locker_not_allowed"))
   rescue ::Lockers::Operators::Base::InvalidStateError => e
     redirect_to admin_locker_path(params[:id]), alert: e.message
   rescue ::Lockers::Operators::Base::DeviceError => e

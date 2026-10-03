@@ -8,17 +8,22 @@ class ApplicationController < ActionController::Base
   private
 
   def current_user
-    @current_user ||= Sessions::ResolveCurrentUser.call(session: session)
+    @current_user ||= Sessions::ResolveCurrentUser.call(session:)
   end
 
-  def platform_owner?
-    current_user&.platform_owner?
+  def platform_owner?(user = current_user)
+    Users::PlatformOwnerChecker.call(user:)
   end
 
   def require_platform_owner!
     return if platform_owner?
 
-    redirect_to lockers_path, alert: t("flash.forbidden_admin")
+    render_forbidden!(t("errors.forbidden.forbidden_admin"))
+  end
+
+  def render_forbidden!(reason)
+    @forbidden_reason = reason
+    render "errors/forbidden", status: :forbidden
   end
 
   def filter_params

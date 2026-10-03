@@ -2,7 +2,7 @@ class LockersController < ApplicationController
   def index
     @lockers = Lockers::Fetcher.call(
       user: current_user,
-      params: params,
+      params:,
       includes: [:company]
     )
   end
@@ -32,7 +32,7 @@ class LockersController < ApplicationController
     operator.call(locker:, user: current_user)
     redirect_to locker_path(locker), notice: t("flash.locker_updated", status: locker.reload.status)
   rescue Lockers::Operators::Base::NotAllowedError
-    redirect_to lockers_path, alert: t("flash.locker_not_allowed")
+    render_forbidden!(t("errors.forbidden.locker_not_allowed"))
   rescue Lockers::Operators::Base::InvalidStateError => e
     redirect_to locker_path(params[:id]), alert: e.message
   rescue Lockers::Operators::Base::DeviceError => e

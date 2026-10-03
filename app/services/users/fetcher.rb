@@ -33,7 +33,7 @@ module Users
     end
 
     def filtered(scope)
-      @filter.call(scope: scope, params: @params)
+      @filter.call(scope:, params: @params)
     end
 
     def ordered(scope)

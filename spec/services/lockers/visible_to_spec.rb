@@ -25,7 +25,7 @@ RSpec.describe Lockers::VisibleTo do
       end
 
       it "returns lockers accessible via their team membership" do
-        result = described_class.call(user: user)
+        result = described_class.call(user:)
         expect(result).to contain_exactly(in_scope)
       end
 
@@ -34,14 +34,14 @@ RSpec.describe Lockers::VisibleTo do
         other_locker = create(:locker, company: company)
         create(:locker_team_permission, locker: other_locker, team: other_team, company_id: company.id)
 
-        result = described_class.call(user: user)
+        result = described_class.call(user:)
         expect(result).not_to include(other_locker)
       end
 
       it "excludes lockers from other companies even if a stray permission existed" do
         other_company_locker = create(:locker, company: create(:company))
 
-        result = described_class.call(user: user)
+        result = described_class.call(user:)
         expect(result).not_to include(other_company_locker)
       end
     end

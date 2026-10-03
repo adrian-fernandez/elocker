@@ -13,14 +13,15 @@ RSpec.describe "Admin::Users", type: :request do
       expect(response.body).to include("Alice Johnson")
     end
 
-    it "redirects tenants away from the admin section" do
+    it "returns 403 Forbidden to tenants hitting the admin section" do
       tenant = create(:user)
       target = create(:user)
       patch "/session", params: { user_id: tenant.id }
 
       get "/admin/users/#{target.id}"
 
-      expect(response).to redirect_to(lockers_path)
+      expect(response).to have_http_status(:forbidden)
+      expect(response.body).to include("Access denied")
     end
   end
 end
