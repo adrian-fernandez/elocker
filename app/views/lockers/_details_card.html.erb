@@ -17,7 +17,7 @@
       <dd class="col-sm-7"><code><%= locker.device_id %></code></dd>
 
       <dt class="col-sm-5 text-secondary"><%= t("locker.details.company") %></dt>
-      <dd class="col-sm-7"><%= locker.company.name %></dd>
+      <dd class="col-sm-7"><%= locker_owner_badge(locker) %></dd>
 
       <dt class="col-sm-5 text-secondary"><%= t("locker.details.status") %></dt>
       <dd class="col-sm-7"><%= locker_status_badge(locker.status) %></dd>

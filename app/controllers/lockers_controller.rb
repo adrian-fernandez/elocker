@@ -6,13 +6,13 @@ class LockersController < ApplicationController
     @lockers = Lockers::Fetcher.call(
       user: current_user,
       params:,
-      includes: [:company, :last_status_changed_by]
+      includes: [:company, :physical_device, :last_status_changed_by]
     )
   end
 
   def show
     @locker = scope
-      .includes(:company, :last_status_changed_by, teams: :users)
+      .includes(:company, :physical_device, :last_status_changed_by, teams: :users)
       .find(params[:id])
 
     @locker_actions = LockerActions::Fetcher.call(

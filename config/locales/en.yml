@@ -8,6 +8,7 @@ en:
     teams: "Teams"
     users: "Users"
     lockers: "Lockers"
+    devices: "Devices"
     activity: "Activity"
     switcher:
       aria_label: "Switch user"
@@ -17,6 +18,7 @@ en:
     user_switched: "Switched to %{name}."
     locker_updated: "Locker is now %{status}."
     locker_device_error: "The device rejected the command: %{message}"
+    locker_transferred: "Device transferred."
 
   errors:
     forbidden:
@@ -32,6 +34,7 @@ en:
     no_members: "no members"
     no_teams: "no teams"
     all: "All"
+    unassigned: "Unassigned"
 
   filters:
     apply: "Apply"
@@ -162,6 +165,33 @@ en:
     filters:
       status_label: "Status"
 
+  physical_devices:
+    page_title: "Physical devices"
+    heading: "Physical devices"
+    subtitle: "Every hardware device on the platform, with its ownership history."
+    total:
+      one: "1 device"
+      other: "%{count} devices"
+    headers:
+      device_id: "Device ID"
+      model: "Model"
+      current_owner: "Current owner"
+      current_locker: "Current locker"
+      contracts: "Contracts"
+    no_model: "—"
+    show:
+      page_title: "Device"
+      back_to_list: "← Back to devices"
+      details_heading: "Device"
+      history_heading: "Ownership history"
+      history_empty: "No contracts yet."
+      current_label: "Current"
+      archived_label: "Archived"
+      no_end: "—"
+      actions_count:
+        one: "1 action"
+        other: "%{count} actions"
+
   activity:
     page_title: "Activity"
     heading: "Activity"
@@ -231,4 +261,16 @@ en:
       close: "Close locker"
       confirm_open: "Open this locker?"
       confirm_close: "Close this locker?"
+      transfer: "Transfer device"
       disabled_hint: "Already %{status}; no action available."
+    transfer:
+      page_title: "Transfer device"
+      heading: "Transfer %{name}"
+      intro_html: "This closes the current contract (keeping its history intact) and opens a new one. The device will be <strong>unassigned</strong> if no company is selected."
+      current_label: "Current owner"
+      new_company_label: "New company"
+      unassigned_option: "— Unassigned (platform-only) —"
+      new_name_label: "New locker name"
+      new_name_hint: "The tenant will see this name in their locker list."
+      submit: "Transfer device"
+      cancel: "Cancel"

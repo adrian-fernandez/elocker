@@ -1,11 +1,15 @@
 module Lockers
-  # Returns the Locker relation visible to a given user.
+  # Returns the Locker contracts (rows) visible to a given user.
   #
-  # - Platform owner (eLocker staff) → every locker.
-  # - Tenant user → only lockers whose team they belong to, scoped to their company.
+  # - Platform owner (eLocker staff) → every ACTIVE locker contract,
+  #   including unassigned ones (company_id = NULL) so platform can test
+  #   and provision devices before they're sold to a tenant.
+  # - Tenant user → only ACTIVE contracts of their company, further
+  #   filtered by team permissions.
   #
-  # Delegates the "is this user elevated?" check to `Users::PlatformOwnerChecker`
-  # so the policy stays in one place.
+  # Historical contracts (ended_at IS NOT NULL) are deliberately excluded
+  # from the default "visible" set — they're audit records surfaced through
+  # the PhysicalDevice detail view, not the regular locker screens.
   class VisibleTo < ApplicationService
     def initialize(user:, model: Locker, checker: Users::PlatformOwnerChecker)
       @user = user
@@ -14,9 +18,10 @@ module Lockers
     end
 
     def call
-      return @model.all if @checker.call(user: @user)
+      base = @model.active
+      return base if @checker.call(user: @user)
 
-      @model
+      base
         .joins(locker_team_permissions: { team: :users })
         .where(users: { id: @user.id })
         .where(company_id: @user.company_id)

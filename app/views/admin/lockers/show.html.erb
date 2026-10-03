@@ -1,11 +1,12 @@
 <% content_for :title, @locker.name %>
 
 <%= render "lockers/detail",
-      locker:     @locker,
-      back_path:  admin_lockers_path,
-      open_path:  open_admin_locker_path(@locker),
-      close_path: close_admin_locker_path(@locker),
-      admin:      true %>
+      locker:         @locker,
+      back_path:      admin_lockers_path,
+      open_path:      open_admin_locker_path(@locker),
+      close_path:     close_admin_locker_path(@locker),
+      transfer_path:  transfer_admin_locker_path(@locker),
+      admin:          true %>
 
 <section class="mt-4">
   <h2 class="h5 mb-3"><%= t("activity.heading") %></h2>

@@ -1,7 +1,7 @@
 class LockerAction < ApplicationRecord
   belongs_to :locker
   belongs_to :user, optional: true
-  belongs_to :company
+  belongs_to :company, optional: true
 
   enum :action, {
     open_request: 0,
@@ -10,5 +10,21 @@ class LockerAction < ApplicationRecord
     closed: 3
   }
 
+  # The composite FK (locker_id, company_id) → lockers skips its check when
+  # either side is NULL (MATCH SIMPLE). This validation closes the gap:
+  # whatever company_id we snapshot MUST match the locker's company at save
+  # time, so a tenant action can't be mis-attributed to another tenant.
+  validate :company_matches_locker
+
   after_create_commit -> { broadcast_refresh_to "lockers" }
+
+  private
+
+  def company_matches_locker
+    return if locker.nil?
+    return if company_id == locker.company_id
+
+    errors.add(:company_id,
+               "must match the locker's company (#{locker.company_id.inspect})")
+  end
 end

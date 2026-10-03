@@ -32,7 +32,8 @@ module Lockers
     def by_device_id(scope)
       return scope if @params[:device_id].blank?
 
-      scope.where("lockers.device_id ILIKE ?", "%#{sanitize(@params[:device_id])}%")
+      scope.joins(:physical_device)
+           .where("physical_devices.device_id ILIKE ?", "%#{sanitize(@params[:device_id])}%")
     end
 
     def by_company(scope)

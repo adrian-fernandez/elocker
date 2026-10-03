@@ -7,10 +7,13 @@ Rails.application.routes.draw do
     resources :companies, only: :index
     resources :teams, only: :index
     resources :users, only: [:index, :show]
+    resources :physical_devices, only: [:index, :show]
     resources :lockers, only: [:index, :show] do
       member do
         post :open
         post :close
+        get  :transfer, action: :transfer_form
+        post :transfer
       end
     end
   end

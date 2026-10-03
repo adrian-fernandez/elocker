@@ -110,14 +110,23 @@ bin/run bin/rails db:drop db:create db:migrate db:seed
 
 ## Seed data & demo users
 
-The seeds create three companies and six users so every scenario in the brief
-can be exercised without any admin screens.
+The seeds create three companies, six users, five contracted lockers and two
+unassigned spare devices so every scenario in the brief can be exercised
+without any admin screens.
 
-| Company | Type | Users | Teams | Lockers |
+| Company | Type | Users | Teams | Lockers (current contracts) |
 |---|---|---|---|---|
 | **eLocker** | Platform owner | Adrian Support | — (full access) | — |
 | **Amazon** | Tenant | Alice · Bob · Carol | Warehouse · Operations · Managers | A1 · A2 · A3 |
 | **DPD** | Tenant | David · Emma | Drivers · Operations | D1 · D2 |
+| _(unassigned)_ | — | — | — | **SPARE-A · SPARE-B** |
+
+The two SPARE devices have no contract: only the platform owner sees them in
+`/admin/lockers` and `/admin/physical_devices`, and they can be opened/closed
+for self-test. Transferring one to a tenant (**Transfer device** button on the
+locker show) closes the current "unassigned" contract and opens a new one
+with the chosen company and name — the archived contract stays visible in the
+device's ownership history under `/admin/physical_devices/:id`.
 
 Team memberships (teams a user belongs to):
 
@@ -143,13 +152,22 @@ timestamps.
 
 ### Suggested walkthrough
 
-1. Start as **Adrian Support** (default) → `/admin/*` sections show every tenant.
-2. Switch to **Alice (Amazon)** → `/lockers` shows only A1 and A2; the Activity
-   view shows only her accessible lockers' history; hitting `/admin/*` returns
-   **403**; hitting a locker she can't see (`/lockers/3` for A3) returns **404**.
-3. Switch to **Carol (Amazon)** → sees A1 and A3 (Managers team).
-4. Open and close a locker — observe the action timeline update live via Turbo
-   Streams on other open tabs (`broadcast_refresh_to "lockers"` + Morph).
+1. Start as **Adrian Support** (default) → `/admin/*` sections show every
+   tenant **plus** the SPARE devices under `/admin/physical_devices` and
+   `/admin/lockers`.
+2. Open a SPARE locker as platform owner → it opens; close it → it closes.
+3. Hit **Transfer device** on a SPARE → form offers "unassigned" or any
+   tenant company. Transfer SPARE-A to Amazon with a new name; the current
+   contract archives and a new one opens. The device detail page
+   (`/admin/physical_devices/:id`) now shows both.
+4. Switch to **Alice (Amazon)** → `/lockers` shows A1, A2 (and, after step 3,
+   SPARE-A under its new name once Amazon grants her team access — not done
+   automatically). Hitting `/admin/*` returns **403**; hitting a locker she
+   can't see (`/lockers/3` for A3) returns **404**.
+5. Switch to **Carol (Amazon)** → sees A1 and A3 (Managers team).
+6. Open and close a locker — observe the action timeline update live via
+   Turbo Streams on other open tabs (`broadcast_refresh_to "lockers"` +
+   Morph).
 
 ---
 
@@ -179,69 +197,94 @@ docker image prune -f
 ## Data model & reasoning
 
 ```
-┌──────────────┐       ┌──────────────────┐       ┌───────────────┐
-│   Company    │◄──────│      Team        │──┐    │     User      │
-│ (tenant or   │       │                  │  │    │               │
-│  platform    │◄──┐   │                  │  │    │               │
-│  owner)      │   │   └──────┬───────────┘  │    └───────┬───────┘
-└──────────────┘   │          │              └──HABTM─────┤
-       ▲           │          │ perms                     │
-       │           │          │                           │
-       │           │          ▼                           │
-       │           │   ┌────────────────────────┐         │
-       │           │   │ LockerTeamPermission   │         │
-       │           │   └──────┬─────────────────┘         │
-       │           │          │                           │
-       │           │          ▼                           │
-       │           │   ┌──────────────┐                   │
-       │           └───│    Locker    │                   │
-       │               └──────┬───────┘                   │
-       │                      │                           │
-       │                      ▼                           │
-       │               ┌───────────────────────────┐      │
-       └───────────────│       LockerAction        │◄─────┘
-                       └───────────────────────────┘
+┌──────────────────┐                 ┌───────────────┐
+│ PhysicalDevice   │                 │     User      │
+│ (hardware; unique│                 │               │
+│  device_id)      │                 └───────┬───────┘
+└────────┬─────────┘                         │
+         │ 1..N contracts over time          │  HABTM teams_users
+         ▼                                   │
+┌─────────────────────────────────┐          │
+│          Locker                 │          │
+│  (contract: physical_device_id, │          │
+│   company_id NULLABLE,          │          │
+│   started_at, ended_at)         │   ┌──────▼──────┐
+└──┬─────────────────────────┬────┘   │    Team     │
+   │                         │        └──┬──────────┘
+   │ perms                   │ actions   │
+   ▼                         ▼           ▼ belongs_to
+┌───────────────────────┐  ┌────────────────────────┐
+│ LockerTeamPermission  │  │    LockerAction        │
+└──────────┬────────────┘  └────────────┬───────────┘
+           │                            │
+           ▼                            ▼
+    ┌──────────────┐             ┌──────────────┐
+    │   Company    │◄────────────│   Company    │ (snapshot at action time)
+    │ (tenant /    │             │              │
+    │  platform    │             └──────────────┘
+    │  owner)      │
+    └──────────────┘
 ```
 
 ### Choices and why
 
-**Company has a `platform_owner` boolean + partial unique index.** One single
-company (eLocker) is marked platform owner; the DB enforces that invariant
-(`index_companies_on_platform_owner WHERE platform_owner = TRUE`). Users don't
-have a role column — the "is this user elevated?" question is answered by
-`Users::PlatformOwnerChecker`, a service that currently derives from the user's
-company but can evolve to roles/permissions without touching call sites.
+**PhysicalDevice is the hardware, Locker is the contract.** A physical
+device has a stable `device_id` (what's printed on the sticker) and lives
+through zero or more `Locker` contracts over time. Each `Locker` row has
+`started_at` + `ended_at` (nullable); only the row with `ended_at IS NULL`
+is "current". A partial unique index on `(physical_device_id) WHERE ended_at
+IS NULL` makes it impossible to have two current contracts for the same
+device. Historical rows accumulate as immutable audit — tenants and admins
+can trace who owned a device, when, under what name, and what actions
+happened under each contract.
+
+**Transferring a device = archive + create.** The `Lockers::Transfer`
+service closes the current contract (sets `ended_at`, deletes its
+`LockerTeamPermission` rows) and creates a brand-new `Locker` with the new
+company and name. `LockerAction` rows are **never** rewritten — their
+`company_id` is a snapshot of ownership at action time, preserved
+indefinitely. This is the cornerstone of the audit guarantee.
+
+**`Locker#company_id` is nullable** → unassigned (spare) lockers belong to
+no tenant. Platform-owner users still see and operate them (useful for
+provisioning / self-test). The composite FKs `locker_team_permissions.
+(locker_id, company_id) → lockers.(id, company_id)` and
+`locker_actions.(locker_id, company_id) → lockers.(id, company_id)` use
+MATCH SIMPLE semantics, so an unassigned locker (NULL company) can't be
+granted team permission (both sides have values but no matching tuple) and
+device-platform actions on it carry a NULL `company_id` (both NULL, FK
+check skipped). A model-level validation enforces that
+`locker_actions.company_id == locker.company_id` always holds.
+
+**Company has a `platform_owner` boolean + partial unique index.** One
+single company (eLocker) is marked platform owner; the DB enforces that
+invariant (`index_companies_on_platform_owner WHERE platform_owner =
+TRUE`). Users don't have a role column — the "is this user elevated?"
+question is answered by `Users::PlatformOwnerChecker`, a service that
+currently derives from the user's company but can evolve to roles /
+permissions without touching call sites.
 
 **Teams are per-company, access to a locker is explicit through
-`LockerTeamPermission`.** A locker and a team must belong to the same company;
-a composite unique on `(id, company_id)` on `lockers` and `teams` + composite
-FKs on the join table (`locker_team_permissions_locker_company_fk`,
-`locker_team_permissions_team_company_fk`) make cross-tenant permissions
-impossible at the DB level, not just in Ruby.
-
-**`teams_users` is a HABTM with `company_id` for the same reason.** The
-composite FKs guarantee a user can only be in teams of their own company. A
-tenant can't accidentally be dropped into another tenant's team even by raw
-SQL.
+`LockerTeamPermission`.** A locker and a team must belong to the same
+company; a composite unique on `(id, company_id)` on `lockers` and `teams`
++ composite FKs on the join table make cross-tenant permissions impossible
+at the DB level, not just in Ruby. `teams_users` is a HABTM with
+`company_id` for the same reason — a user can only be in teams of their
+own company.
 
 **`LockerAction` is append-only and event-shaped** — four enum values:
 `open_request` and `close_request` (user-triggered) + `opened` and `closed`
-(device responses). A request without a matching response represents a failed
-or pending operation. The current `Locker#status` is the authoritative current
-state; actions are the audit trail. This is the Command + Event-Log pattern,
-scoped down to be production-grade without being event-sourcing-heavy.
+(device responses). A request without a matching response represents a
+failed or pending operation. The current `Locker#status` is the
+authoritative current state; actions are the audit trail. This is the
+Command + Event-Log pattern, scoped down to be production-grade without
+being event-sourcing-heavy.
 
-**`locker_actions.company_id` is pinned to the locker's company**, not the
-user's, because a platform-owner user operating a tenant's locker produces an
-action that belongs to the tenant's history. The composite FK
-`(locker_id, company_id) → lockers` enforces this. The simple `user_id` FK is
-intentional (no `(user_id, company_id)` composite) because platform-owner users
-operate across companies.
-
-**`Locker#last_status_changed_{at,by}` is separate from `updated_at`.** Editing
-the locker's name shouldn't move the "last state change" clock. The columns are
-populated by `Lockers::Operators::Base#apply_response!`, so every path that
-transitions status funnels through the same assignment.
+**`Locker#last_status_changed_{at,by}` is separate from `updated_at`.**
+Editing the locker's name shouldn't move the "last state change" clock.
+The columns are populated by `Lockers::Operators::Base#apply_response!`,
+so every path that transitions status funnels through the same
+assignment.
 
 ---
 

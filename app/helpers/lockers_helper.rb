@@ -33,4 +33,13 @@ module LockersHelper
       class: "badge #{ACTION_BADGE_CLASS.fetch(action.to_s, DEFAULT_BADGE_CLASS)}"
     )
   end
+
+  # Renders the locker's current owner either as a company name or as an
+  # "Unassigned" warning badge. Centralises the if/else that otherwise
+  # repeats across admin views and the shared detail partial.
+  def locker_owner_badge(locker)
+    return locker.company.name if locker.assigned?
+
+    tag.span(t("common.unassigned"), class: "badge text-bg-warning")
+  end
 end

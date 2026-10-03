@@ -94,7 +94,11 @@
             </td>
             <td><code><%= locker.device_id %></code></td>
             <td>
-              <%= link_to locker.company.name, admin_teams_path(company_id: locker.company_id), class: "text-decoration-none" %>
+              <% if locker.assigned? %>
+                <%= link_to locker.company.name, admin_teams_path(company_id: locker.company_id), class: "text-decoration-none" %>
+              <% else %>
+                <%= locker_owner_badge(locker) %>
+              <% end %>
             </td>
             <td><%= locker_status_badge(locker.status) %></td>
             <td class="small">

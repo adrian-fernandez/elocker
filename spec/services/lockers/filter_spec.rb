@@ -28,8 +28,8 @@ RSpec.describe Lockers::Filter do
 
   describe "#by_device_id" do
     before do
-      create(:locker, device_id: "AMZ-001")
-      create(:locker, device_id: "DPD-001")
+      create(:locker, physical_device: create(:physical_device, device_id: "AMZ-001"))
+      create(:locker, physical_device: create(:physical_device, device_id: "DPD-001"))
     end
 
     it "filters by ILIKE %device_id%" do

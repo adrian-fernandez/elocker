@@ -1,0 +1,49 @@
+<% content_for :title, t("physical_devices.page_title") %>
+
+<div class="d-flex align-items-baseline justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="h3 mb-0"><%= t("physical_devices.heading") %></h1>
+    <small class="text-secondary"><%= t("physical_devices.subtitle") %></small>
+  </div>
+  <span class="badge text-bg-light"><%= t("physical_devices.total", count: @physical_devices.length) %></span>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th scope="col"><%= t("physical_devices.headers.device_id") %></th>
+        <th scope="col"><%= t("physical_devices.headers.model") %></th>
+        <th scope="col"><%= t("physical_devices.headers.current_owner") %></th>
+        <th scope="col"><%= t("physical_devices.headers.current_locker") %></th>
+        <th scope="col" class="text-end"><%= t("physical_devices.headers.contracts") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @physical_devices.each do |device| %>
+        <% current = device.lockers.detect { |l| l.ended_at.nil? } %>
+        <tr>
+          <td>
+            <%= link_to device.device_id, admin_physical_device_path(device), class: "text-decoration-none fw-semibold" %>
+          </td>
+          <td><%= device.model.presence || t("physical_devices.no_model") %></td>
+          <td>
+            <% if current %>
+              <%= locker_owner_badge(current) %>
+            <% else %>
+              <span class="badge text-bg-warning"><%= t("common.unassigned") %></span>
+            <% end %>
+          </td>
+          <td>
+            <% if current %>
+              <%= link_to current.name, admin_locker_path(current), class: "text-decoration-none" %>
+            <% else %>
+              <span class="text-secondary">—</span>
+            <% end %>
+          </td>
+          <td class="text-end"><%= device.lockers.length %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

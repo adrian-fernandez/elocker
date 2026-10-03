@@ -4,7 +4,24 @@ RSpec.describe LockerAction, type: :model do
   describe "associations" do
     it { is_expected.to belong_to(:locker) }
     it { is_expected.to belong_to(:user).optional }
-    it { is_expected.to belong_to(:company) }
+    it { is_expected.to belong_to(:company).optional }
+  end
+
+  describe "company_matches_locker validation" do
+    it "accepts a nil company when the locker is unassigned" do
+      locker = create(:locker, :unassigned)
+      action = build(:locker_action, locker: locker, company_id: nil, user: build(:user, :platform_owner))
+
+      expect(action).to be_valid
+    end
+
+    it "rejects a mismatched company" do
+      locker = create(:locker)
+      action = build(:locker_action, locker: locker, company_id: create(:company).id)
+
+      expect(action).not_to be_valid
+      expect(action.errors[:company_id]).to be_present
+    end
   end
 
   describe "action enum" do

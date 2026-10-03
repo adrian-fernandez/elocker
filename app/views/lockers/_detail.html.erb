@@ -1,10 +1,12 @@
 <%
   # Locals:
-  # - locker:     Locker
-  # - back_path:  String — index path for the current scope
-  # - open_path:  String — POST target for the Open operation
-  # - close_path: String — POST target for the Close operation
-  # - admin:      Boolean — whether we're rendering under /admin (controls deep links)
+  # - locker:        Locker
+  # - back_path:     String — index path for the current scope
+  # - open_path:     String — POST target for the Open operation
+  # - close_path:    String — POST target for the Close operation
+  # - admin:         Boolean — whether we're rendering under /admin (controls deep links)
+  # - transfer_path: String or nil — admin-only link to the transfer form
+  transfer_path = local_assigns[:transfer_path]
 %>
 
 <%= turbo_stream_from "lockers" %>
@@ -19,7 +21,7 @@
     <div class="text-secondary small">
       <code><%= locker.device_id %></code>
       <span class="mx-1">·</span>
-      <%= locker.company.name %>
+      <%= locker_owner_badge(locker) %>
     </div>
   </div>
   <div>
@@ -32,7 +34,7 @@
     <%= render "lockers/details_card", locker:, admin: %>
 
     <div class="mt-3">
-      <%= render "lockers/actions_card", locker:, open_path:, close_path: %>
+      <%= render "lockers/actions_card", locker:, open_path:, close_path:, transfer_path: %>
     </div>
   </div>
 

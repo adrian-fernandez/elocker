@@ -3,7 +3,12 @@ class CreateLockerActions < ActiveRecord::Migration[8.1]
     create_table :locker_actions do |t|
       t.references :locker, null: false, foreign_key: true
       t.references :user, foreign_key: true
-      t.bigint :company_id, null: false
+      # Snapshot of the locker's owning company at action time (nullable:
+      # actions on unassigned lockers — platform-owner testing — have no
+      # company). Preserved on transfer so each action keeps its owner
+      # context; the composite FK (locker_id, company_id) → lockers uses
+      # MATCH SIMPLE and skips when either column is NULL.
+      t.bigint :company_id, null: true
 
       t.integer :action, null: false
 

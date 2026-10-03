@@ -1,7 +1,15 @@
 FactoryBot.define do
   factory :locker_action do
     locker
-    user { build(:user, company: locker.company) }
+    # Pick a sensible default actor: tenant-owned locker gets a tenant user,
+    # unassigned locker gets a platform-owner user. Specs can override.
+    user do
+      if locker.company
+        build(:user, company: locker.company)
+      else
+        build(:user, :platform_owner)
+      end
+    end
     company_id { locker.company_id }
     action { :open_request }
 
