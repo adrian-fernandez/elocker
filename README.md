@@ -7,19 +7,19 @@ teams.
 
 ## Versions
 
-| Component | Version | Where it's pinned |
-|---|---|---|
-| Ruby | **4.0.1** | `.ruby-version`, `Dockerfile.dev` |
-| Rails | **8.1.4** | `Gemfile` |
-| PostgreSQL | **16** (alpine) | `compose.yml` (`postgres:16`) |
-| Puma | ≥ 5.0 | `Gemfile` |
-| pg gem | ~> 1.1 | `Gemfile` |
-| Hotwire | turbo-rails 2.0.23 · stimulus-rails 1.3.4 | `Gemfile.lock` |
-| Importmap | importmap-rails (default pins) | `config/importmap.rb` |
-| Bootstrap | **5.3.3** (CDN, jsDelivr) | `app/views/layouts/application.html.erb` |
-| RSpec | rspec-rails 7.1.1 | `Gemfile.lock` |
-| Factories | factory_bot_rails 6.5.1 | `Gemfile.lock` |
-| Shoulda | shoulda-matchers 6.5.0 | `Gemfile.lock` |
+| Component  | Version                                   | Where it's pinned                        |
+| ---------- | ----------------------------------------- | ---------------------------------------- |
+| Ruby       | **4.0.1**                                 | `.ruby-version`, `Dockerfile.dev`        |
+| Rails      | **8.1.4**                                 | `Gemfile`                                |
+| PostgreSQL | **16** (alpine)                           | `compose.yml` (`postgres:16`)            |
+| Puma       | ≥ 5.0                                     | `Gemfile`                                |
+| pg gem     | \~\> 1.1                                  | `Gemfile`                                |
+| Hotwire    | turbo-rails 2.0.23 · stimulus-rails 1.3.4 | `Gemfile.lock`                           |
+| Importmap  | importmap-rails (default pins)            | `config/importmap.rb`                    |
+| Bootstrap  | **5.3.3** (CDN, jsDelivr)                 | `app/views/layouts/application.html.erb` |
+| RSpec      | rspec-rails 7.1.1                         | `Gemfile.lock`                           |
+| Factories  | factory\_bot\_rails 6.5.1                 | `Gemfile.lock`                           |
+| Shoulda    | shoulda-matchers 6.5.0                    | `Gemfile.lock`                           |
 
 Database adapters, Action Cable broadcast + queue, cache: Rails 8's Solid trio
 (`solid_cache`, `solid_queue`, `solid_cable`) — all SQL-backed, no Redis
@@ -29,18 +29,18 @@ required.
 
 ## Table of contents
 
-1. [Running the app](#running-the-app)
-2. [Seed data & demo users](#seed-data--demo-users)
-3. [Uninstall / cleanup](#uninstall--cleanup)
-4. [Data model & reasoning](#data-model--reasoning)
-5. [Security mechanisms](#security-mechanisms)
-6. [Technical decisions](#technical-decisions)
-7. [Features worth highlighting](#features-worth-highlighting)
-8. [Out of scope (by design)](#out-of-scope-by-design)
-9. [Testing](#testing)
-10. [Assumptions & questions I'd ask the business](#assumptions--questions-id-ask-the-business)
-11. [ToDo / future work](#todo--future-work)
-12. [AI tooling](#ai-tooling)
+1. [Running the app][1]
+2. [Seed data & demo users][2]
+3. [Uninstall / cleanup][3]
+4. [Data model & reasoning][4]
+5. [Security mechanisms][5]
+6. [Technical decisions][6]
+7. [Features worth highlighting][7]
+8. [Out of scope (by design)][8]
+9. [Testing][9]
+10. [Assumptions & questions I'd ask the business][10]
+11. [ToDo / future work][11]
+12. [AI tooling][12]
 
 ---
 
@@ -58,10 +58,10 @@ required.
 
 Two tiny wrappers live in `bin/` to keep the day-to-day workflow short:
 
-| Script | What it does | When to use it |
-|---|---|---|
-| `bin/run <cmd>` | `docker compose exec web <cmd>` — forwards any args to the running web container. | For running `rails`, `rspec`, `bundle`, `rubocop`, etc. inside Docker without typing the compose incantation every time. |
-| `bin/setup` | Stock Rails bootstrap: `bundle check` / `install`, `rails db:prepare`, `log:clear tmp:clear`, then `bin/dev`. Supports `--reset` and `--skip-server`. | Run **inside the container** (`bin/run bin/setup`) to re-prepare the DB on a cold start; or outside Docker if you ever develop natively. For the Docker-first flow below, the one-liner `bin/run bin/rails db:prepare db:seed` is faster since the server is already up via compose. |
+| Script          | What it does                                                                                                                                          | When to use it                                                                                                                                                                                                                                                                       |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `bin/run <cmd>` | `docker compose exec web <cmd>` — forwards any args to the running web container.                                                                     | For running `rails`, `rspec`, `bundle`, `rubocop`, etc. inside Docker without typing the compose incantation every time.                                                                                                                                                             |
+| `bin/setup`     | Stock Rails bootstrap: `bundle check` / `install`, `rails db:prepare`, `log:clear tmp:clear`, then `bin/dev`. Supports `--reset` and `--skip-server`. | Run **inside the container** (`bin/run bin/setup`) to re-prepare the DB on a cold start; or outside Docker if you ever develop natively. For the Docker-first flow below, the one-liner `bin/run bin/rails db:prepare db:seed` is faster since the server is already up via compose. |
 
 ### First-time setup
 
@@ -114,12 +114,12 @@ The seeds create three companies, six users, five contracted lockers and two
 unassigned spare devices so every scenario in the brief can be exercised
 without any admin screens.
 
-| Company | Type | Users | Teams | Lockers (current contracts) |
-|---|---|---|---|---|
-| **eLocker** | Platform owner | Adrian Support | — (full access) | — |
-| **Amazon** | Tenant | Alice · Bob · Carol | Warehouse · Operations · Managers | A1 · A2 · A3 |
-| **DPD** | Tenant | David · Emma | Drivers · Operations | D1 · D2 |
-| _(unassigned)_ | — | — | — | **SPARE-A · SPARE-B** |
+| Company        | Type           | Users               | Teams                             | Lockers (current contracts) |
+| -------------- | -------------- | ------------------- | --------------------------------- | --------------------------- |
+| **eLocker**    | Platform owner | Adrian Support      | — (full access)                   | —                           |
+| **Amazon**     | Tenant         | Alice · Bob · Carol | Warehouse · Operations · Managers | A1 · A2 · A3                |
+| **DPD**        | Tenant         | David · Emma        | Drivers · Operations              | D1 · D2                     |
+| _(unassigned)_ | —              | —                   | —                                 | **SPARE-A · SPARE-B**       |
 
 The two SPARE devices have no contract: only the platform owner sees them in
 `/admin/lockers` and `/admin/physical_devices`, and they can be opened/closed
@@ -232,8 +232,8 @@ docker image prune -f
 device has a stable `device_id` (what's printed on the sticker) and lives
 through zero or more `Locker` contracts over time. Each `Locker` row has
 `started_at` + `ended_at` (nullable); only the row with `ended_at IS NULL`
-is "current". A partial unique index on `(physical_device_id) WHERE ended_at
-IS NULL` makes it impossible to have two current contracts for the same
+is "current". A partial unique index on \`(physical\_device\_id) WHERE ended\_at
+IS NULL\` makes it impossible to have two current contracts for the same
 device. Historical rows accumulate as immutable audit — tenants and admins
 can trace who owned a device, when, under what name, and what actions
 happened under each contract.
@@ -247,8 +247,8 @@ indefinitely. This is the cornerstone of the audit guarantee.
 
 **`Locker#company_id` is nullable** → unassigned (spare) lockers belong to
 no tenant. Platform-owner users still see and operate them (useful for
-provisioning / self-test). The composite FKs `locker_team_permissions.
-(locker_id, company_id) → lockers.(id, company_id)` and
+provisioning / self-test). The composite FKs \`locker\_team\_permissions.
+(locker\_id, company\_id) → lockers.(id, company\_id)\` and
 `locker_actions.(locker_id, company_id) → lockers.(id, company_id)` use
 MATCH SIMPLE semantics, so an unassigned locker (NULL company) can't be
 granted team permission (both sides have values but no matching tuple) and
@@ -258,14 +258,14 @@ check skipped). A model-level validation enforces that
 
 **Company has a `platform_owner` boolean + partial unique index.** One
 single company (eLocker) is marked platform owner; the DB enforces that
-invariant (`index_companies_on_platform_owner WHERE platform_owner =
-TRUE`). Users don't have a role column — the "is this user elevated?"
+invariant (\`index\_companies\_on\_platform\_owner WHERE platform\_owner =
+TRUE\`). Users don't have a role column — the "is this user elevated?"
 question is answered by `Users::PlatformOwnerChecker`, a service that
 currently derives from the user's company but can evolve to roles /
 permissions without touching call sites.
 
-**Teams are per-company, access to a locker is explicit through
-`LockerTeamPermission`.** A locker and a team must belong to the same
+\*\*Teams are per-company, access to a locker is explicit through
+`LockerTeamPermission`.\*\* A locker and a team must belong to the same
 company; a composite unique on `(id, company_id)` on `lockers` and `teams`
 + composite FKs on the join table make cross-tenant permissions impossible
 at the DB level, not just in Ruby. `teams_users` is a HABTM with
@@ -290,8 +290,8 @@ assignment.
 
 ## Security mechanisms
 
-The brief explicitly says *"Access rules and data separation between companies
-must really work. Please don't mock those."* This section documents every
+The brief explicitly says \*"Access rules and data separation between companies
+must really work. Please don't mock those."\* This section documents every
 layer that enforces that, plus the broader security posture of the app.
 
 ### Multi-tenant isolation — three layers
@@ -321,23 +321,23 @@ layer that enforces that, plus the broader security posture of the app.
    Every data-fetching service exposes a `VisibleTo` policy:
 
    - `Lockers::VisibleTo.call(user:)` — `Locker.all` for platform owners;
-     for tenants, joins `locker_team_permissions → team → users` and filters
-     to the current user's team memberships + their `company_id`.
+	 for tenants, joins `locker_team_permissions → team → users` and filters
+	 to the current user's team memberships + their `company_id`.
    - `LockerActions::VisibleTo.call(user:)` — reuses the above as a
-     subquery, so "if you can see the locker, you can see its actions"
-     cannot drift.
+	 subquery, so "if you can see the locker, you can see its actions"
+	 cannot drift.
    - `Users::PlatformOwnerChecker.call(user:)` is the **single** answer to
-     "is this user elevated?". The `User` model intentionally does **not**
-     expose a `platform_owner?` predicate — a model spec guards against
-     anyone re-adding one. The policy currently derives from the user's
-     company, but can grow into roles/permissions without any call-site
-     changes.
+	 "is this user elevated?". The `User` model intentionally does **not**
+	 expose a `platform_owner?` predicate — a model spec guards against
+	 anyone re-adding one. The policy currently derives from the user's
+	 company, but can grow into roles/permissions without any call-site
+	 changes.
 
 3. **Controller layer.**
 
    | Guard | Where | Effect |
    |---|---|---|
-   | `require_platform_owner!` | `Admin::BaseController` (before_action) | Renders a **403 Forbidden** page in-layout; no redirect-to-200. |
+   | `require_platform_owner!` | `Admin::BaseController` (before\_action) | Renders a **403 Forbidden** page in-layout; no redirect-to-200. |
    | `scope.find(params[:id])` using `Lockers::VisibleTo` | `LockersController`, `Admin::LockersController` | Raises `ActiveRecord::RecordNotFound` → **404**. Hides existence from unauthorized viewers. |
    | `Operators::Base#authorize!` | Every open/close call | Defence in depth. Even if a caller bypassed the controller `scope.find`, the operator re-checks visibility and raises `NotAllowedError` → 403. |
 
@@ -345,15 +345,15 @@ layer that enforces that, plus the broader security posture of the app.
 
 Chosen on purpose, not accidental:
 
-| Case | Code | Rationale |
-|---|---|---|
-| Tenant hits `/admin/*` | **403 Forbidden** | The URL space is public; the user is denied, not hidden-from. |
-| Tenant GETs `/lockers/:id` outside their scope | **404 Not Found** | Prevents enumeration — tenant can't learn which locker IDs exist. |
-| Any user POSTs `/lockers/:id/open` for an invisible locker | **404 Not Found** | Same reason. |
-| Operator `NotAllowedError` (defence-in-depth path) | **403 Forbidden** | Reached only if controller scoping was bypassed. |
-| Operator `InvalidStateError` (opening an already-open locker) | 302 + flash | Business state issue, not an auth decision. |
-| Operator `DeviceError` (driver reported failure) | 302 + flash | Upstream failure, not an auth decision. |
-| Admin section as platform owner | 200 | Normal. |
+| Case                                                          | Code              | Rationale                                                         |
+| ------------------------------------------------------------- | ----------------- | ----------------------------------------------------------------- |
+| Tenant hits `/admin/*`                                        | **403 Forbidden** | The URL space is public; the user is denied, not hidden-from.     |
+| Tenant GETs `/lockers/:id` outside their scope                | **404 Not Found** | Prevents enumeration — tenant can't learn which locker IDs exist. |
+| Any user POSTs `/lockers/:id/open` for an invisible locker    | **404 Not Found** | Same reason.                                                      |
+| Operator `NotAllowedError` (defence-in-depth path)            | **403 Forbidden** | Reached only if controller scoping was bypassed.                  |
+| Operator `InvalidStateError` (opening an already-open locker) | 302 + flash       | Business state issue, not an auth decision.                       |
+| Operator `DeviceError` (driver reported failure)              | 302 + flash       | Upstream failure, not an auth decision.                           |
+| Admin section as platform owner                               | 200               | Normal.                                                           |
 
 ### Transactional integrity
 
@@ -412,20 +412,20 @@ actions" without changing the architecture.
 
 **Indexes designed for the hot paths**
 
-| Query | Index used |
-|---|---|
-| Tenant lockers list (`company_id = ? AND ended_at IS NULL`) | `index_lockers_on_company_id_active` (partial btree, `WHERE ended_at IS NULL`) |
-| Device ownership history (`physical_device_id = ?`) | `lockers.physical_device_id` (plain btree, from `t.references`) |
-| Only-one-active-contract-per-device invariant | `index_lockers_on_physical_device_id_active` (partial unique) |
-| Composite tenant FKs | `(id, company_id)` composite uniques on `lockers`, `teams`, `users` |
-| Action timeline per locker | `(locker_id, created_at)` |
-| Action timeline per user | `(user_id, created_at)` |
-| Action timeline per tenant | `(company_id, created_at)` |
-| Pure date-range filter on activity | `locker_actions.created_at` plain |
-| Admin dashboard sort by name | `companies.name` plain |
-| **ILIKE search** on name / device_id | **`pg_trgm` GIN indexes** on `companies.name`, `users.name`, `teams.name`, `lockers.name`, `physical_devices.device_id` (migration `20261003140000`) |
+| Query                                                       | Index used                                                                                                                                           |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tenant lockers list (`company_id = ? AND ended_at IS NULL`) | `index_lockers_on_company_id_active` (partial btree, `WHERE ended_at IS NULL`)                                                                       |
+| Device ownership history (`physical_device_id = ?`)         | `lockers.physical_device_id` (plain btree, from `t.references`)                                                                                      |
+| Only-one-active-contract-per-device invariant               | `index_lockers_on_physical_device_id_active` (partial unique)                                                                                        |
+| Composite tenant FKs                                        | `(id, company_id)` composite uniques on `lockers`, `teams`, `users`                                                                                  |
+| Action timeline per locker                                  | `(locker_id, created_at)`                                                                                                                            |
+| Action timeline per user                                    | `(user_id, created_at)`                                                                                                                              |
+| Action timeline per tenant                                  | `(company_id, created_at)`                                                                                                                           |
+| Pure date-range filter on activity                          | `locker_actions.created_at` plain                                                                                                                    |
+| Admin dashboard sort by name                                | `companies.name` plain                                                                                                                               |
+| **ILIKE search** on name / device\_id                       | **`pg_trgm` GIN indexes** on `companies.name`, `users.name`, `teams.name`, `lockers.name`, `physical_devices.device_id` (migration `20261003140000`) |
 
-The pg_trgm GIN indexes are what keep the ILIKE-based column filters fast at
+The pg\_trgm GIN indexes are what keep the ILIKE-based column filters fast at
 scale — a plain btree can't satisfy a `%foo%` leading-wildcard query and
 would degrade to seq scans. With trigram GIN, the same filter stays in the
 sub-millisecond range at millions of rows.
@@ -444,12 +444,12 @@ column, which at scale would be N × 3 extra queries for an unpaginated list.
 - Partial unique on `(platform_owner) WHERE platform_owner = TRUE` →
   at most one platform-owner company.
 - CHECK constraint `lockers.ended_at IS NULL OR ended_at > started_at`.
-- Composite tenant FKs listed in [Security mechanisms](#security-mechanisms).
+- Composite tenant FKs listed in [Security mechanisms][13].
 - Model-level `company_matches_locker` and `user_matches_action_type` on
   `LockerAction` keep the event-log contract honest even when the
   controller layer is bypassed.
 
-**Still worth doing before you push past ~1M actions**
+**Still worth doing before you push past \~1M actions**
 
 - Partition `locker_actions` by `created_at` (monthly) so pagination and
   retention don't scan the whole table.
@@ -557,7 +557,7 @@ in `_html` are the only ones that interpolate pre-escaped content (e.g. a
   - Authorization via the same `VisibleTo` the UI uses.
   - State validation (can't open an open locker).
   - Transactional request + dispatch + response + status update, with
-    savepoint rollback on driver failure.
+	savepoint rollback on driver failure.
   - Fully DI-friendly for tests.
 - **Pretty 403 page**, no redirect-to-200 for permission denials.
 
@@ -567,16 +567,16 @@ in `_html` are the only ones that interpolate pre-escaped content (e.g. a
 
 Things the brief carved out explicitly, mapped to the current build:
 
-| Topic | Brief said | What this build has |
-|---|---|---|
-| Managing companies/teams/users | "Create them in seed data, no screens needed." | Seeds cover 3 companies, 6 users, 5 teams, 5 lockers, 8 pre-populated actions. I **did** build read-only admin tables for them (companies/teams/users/lockers) because they double as a demonstration surface for the policy and filter layer, but there is no create/update/delete UI. |
-| Authentication | "Mock the current user, and let us switch between users with a dropdown menu in the header." | `Sessions::ResolveCurrentUser` picks the first user on cold start; `Sessions::SwitchUser` persists the choice to the session. Navbar dropdown is grouped by company with a `platform` badge for the eLocker group. |
-| Real hardware | "Opening or closing a locker is just a state change in the app." | `Lockers::Api::Mock` always succeeds; `Lockers::Api::Base` + `Http` stub + registry factory show the extension seam. |
-| Visual design | "The UI is part of the task, but we won't judge how it looks." | Bootstrap 5.3 via CDN; dark navbar; filter cards; accordion for teams; badges and colored states. Not pixel-polished. |
-| Deployment | "The app should just run on localhost." | `docker compose up -d --build` → `localhost:3000`. No Kamal, no cloud. |
+| Topic                          | Brief said                                                                                   | What this build has                                                                                                                                                                                                                                                                     |
+| ------------------------------ | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Managing companies/teams/users | "Create them in seed data, no screens needed."                                               | Seeds cover 3 companies, 6 users, 5 teams, 5 lockers, 8 pre-populated actions. I **did** build read-only admin tables for them (companies/teams/users/lockers) because they double as a demonstration surface for the policy and filter layer, but there is no create/update/delete UI. |
+| Authentication                 | "Mock the current user, and let us switch between users with a dropdown menu in the header." | `Sessions::ResolveCurrentUser` picks the first user on cold start; `Sessions::SwitchUser` persists the choice to the session. Navbar dropdown is grouped by company with a `platform` badge for the eLocker group.                                                                      |
+| Real hardware                  | "Opening or closing a locker is just a state change in the app."                             | `Lockers::Api::Mock` always succeeds; `Lockers::Api::Base` + `Http` stub + registry factory show the extension seam.                                                                                                                                                                    |
+| Visual design                  | "The UI is part of the task, but we won't judge how it looks."                               | Bootstrap 5.3 via CDN; dark navbar; filter cards; accordion for teams; badges and colored states. Not pixel-polished.                                                                                                                                                                   |
+| Deployment                     | "The app should just run on localhost."                                                      | `docker compose up -d --build` → `localhost:3000`. No Kamal, no cloud.                                                                                                                                                                                                                  |
 
 Things the brief did **not** ask for and I deliberately did **not** add — the
-rationale lives in **[ToDo / future work](#todo--future-work)** below:
+rationale lives in **[ToDo / future work][14]** below:
 
 - Real authentication / SSO
 - Rate limiting on write endpoints
@@ -607,12 +607,12 @@ bin/run bundle exec rspec
   - `Lockers::VisibleTo` + `LockerActions::VisibleTo` for both roles.
   - Each `Filter` with one spec per `by_*` method and a composition spec.
   - Each `Fetcher` end-to-end AND with class-level doubles proving DI
-    (visibility/filter/paginator all swappable).
+	(visibility/filter/paginator all swappable).
   - `Lockers::Api::{Base, Mock}` + factory errors.
   - `Lockers::Operators::{Open, Close}` — authz blocks strangers, state
-    validation rejects already-open-opens, happy path creates both actions +
-    updates status, driver failure raises `DeviceError` AND rolls back via
-    savepoint, DI accepts a stubbed api.
+	validation rejects already-open-opens, happy path creates both actions +
+	updates status, driver failure raises `DeviceError` AND rolls back via
+	savepoint, DI accepts a stubbed api.
   - `Sessions::SwitchUser` + `Sessions::ResolveCurrentUser`.
   - `Users::PlatformOwnerChecker`.
 - **Request specs** for `admin/users#show` (tenant → 403), `/lockers/:id/open`
@@ -640,7 +640,7 @@ Assumptions baked into the current design:
   "support users with scoped access to a subset of tenants". The
   `PlatformOwnerChecker` service is the hook for that evolution.
 - **A user belongs to exactly one company**. Cross-company users (e.g., a
-  contractor serving two tenants) aren't modelled.
+ contractor serving two tenants) aren't modelled.
 - **A team's lockers permission is binary** (operate / nothing). The initial
   design had read vs. operate; I removed it per the brief ("each team works
   with its own set"). Easy to add back on `LockerTeamPermission`.
@@ -685,11 +685,11 @@ for a production rollout. Rough estimates alongside each.
 - **Row-level lock on open/close** (`@locker.with_lock { ... }`): two
   concurrent operations today can both pass `initial_state_valid?`. In the mock
   world this just produces one extra action; against real hardware it means
-  firing a command twice. **~15 min**.
+  firing a command twice. **\~15 min**.
 - **Rate limiting** on `POST /lockers/:id/{open,close}` via Rack::Attack. One
-  user shouldn't be able to spam a device. **~20 min**.
+  user shouldn't be able to spam a device. **\~20 min**.
 - **Audit logging** for admin actions (viewing another tenant's data,
-  switching users). Would ship to a tamper-evident store. **~1 h**.
+  switching users). Would ship to a tamper-evident store. **\~1 h**.
 - **Security alerts** on anomalous access patterns (same user operating from
   two IPs within seconds, bursts of failed operations, unusual time of day).
   Sentry/Honeybadger for exceptions; a custom cron for policy-based alerts.
@@ -705,21 +705,21 @@ for a production rollout. Rough estimates alongside each.
 
 - **Database indexes**: `(created_at)` plain on `locker_actions` for pure
   date-only filters; `pg_trgm` GIN index on `lockers.name` and `users.name`
-  for ILIKE scaling. **~15 min each**.
+  for ILIKE scaling. **\~15 min each**.
 - **Fragment caching** on the activity table rows (Russian doll keyed on
   `locker_action.cache_key_with_version`). Pays off above a few thousand rows
-  per page. **~30 min**.
+  per page. **\~30 min**.
 - **Cursor pagination** for `/activity` as the table grows into the millions
-  — the `COUNT` for `.total` is the current linear cost. **~45 min**.
+  — the `COUNT` for `.total` is the current linear cost. **\~45 min**.
 - **Read replicas** for the activity queries once scale demands.
 - **Background job for `broadcast_refresh_to`** so the controller returns
-  without waiting on ActionCable at high throughput. **~15 min** (Solid Queue
+  without waiting on ActionCable at high throughput. **\~15 min** (Solid Queue
   is already in the Gemfile).
 
 ### Observability
 
-- **Lograge** or structured JSON logs with request_id correlation. **~15 min**.
-- **Error tracking** (Sentry). **~20 min**.
+- **Lograge** or structured JSON logs with request\_id correlation. **\~15 min**.
+- **Error tracking** (Sentry). **\~20 min**.
 - **APM** (New Relic, Datadog, Skylight) for N+1 and slow-query visibility.
 - **A Grafana board** on operation success rate / device latency once Http
   driver lands.
@@ -739,7 +739,7 @@ for a production rollout. Rough estimates alongside each.
 - **CSV / NDJSON export** of the activity table for compliance/BI.
 - **Second locale** (`es.yml`) — the I18n scaffolding is already in place.
 - **System specs** (Capybara + Selenium) covering the Turbo Streams + user
-  switch flow end-to-end. **~45 min**.
+  switch flow end-to-end. **\~45 min**.
 - **Mobile view polish**: the filter card is responsive but the activity
   table at 5 filters wide stacks aggressively; a dedicated mobile layout
   would help.
@@ -773,3 +773,18 @@ rejected) explicitly — the model was treated as a fast colleague, not an
 oracle. Where I disagreed with its first suggestion (e.g. the function-first
 namespace proposal) I pushed back and chose the simpler path, and where I
 agreed I asked it to apply the pattern consistently across all touchpoints.
+
+[1]:	#running-the-app
+[2]:	#seed-data--demo-users
+[3]:	#uninstall--cleanup
+[4]:	#data-model--reasoning
+[5]:	#security-mechanisms
+[6]:	#technical-decisions
+[7]:	#features-worth-highlighting
+[8]:	#out-of-scope-by-design
+[9]:	#testing
+[10]:	#assumptions--questions-id-ask-the-business
+[11]:	#todo--future-work
+[12]:	#ai-tooling
+[13]:	#security-mechanisms
+[14]:	#todo--future-work

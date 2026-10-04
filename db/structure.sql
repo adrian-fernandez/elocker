@@ -635,24 +635,10 @@ CREATE INDEX index_locker_actions_on_company_id_and_created_at ON ONLY public.lo
 
 
 --
--- Name: index_locker_actions_on_created_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_locker_actions_on_created_at ON ONLY public.locker_actions USING btree (created_at);
-
-
---
 -- Name: index_locker_actions_on_locker_id_and_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_locker_actions_on_locker_id_and_created_at ON ONLY public.locker_actions USING btree (locker_id, created_at);
-
-
---
--- Name: index_locker_actions_on_user_id_and_created_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_locker_actions_on_user_id_and_created_at ON ONLY public.locker_actions USING btree (user_id, created_at);
 
 
 --
@@ -677,13 +663,6 @@ CREATE INDEX index_locker_team_permissions_on_team_id_and_company_id ON public.l
 
 
 --
--- Name: index_lockers_on_company_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_lockers_on_company_id ON public.lockers USING btree (company_id);
-
-
---
 -- Name: index_lockers_on_company_id_active; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -698,31 +677,10 @@ CREATE INDEX index_lockers_on_company_id_and_status ON public.lockers USING btre
 
 
 --
--- Name: index_lockers_on_ended_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_lockers_on_ended_at ON public.lockers USING btree (ended_at);
-
-
---
 -- Name: index_lockers_on_id_and_company_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_lockers_on_id_and_company_id ON public.lockers USING btree (id, company_id);
-
-
---
--- Name: index_lockers_on_last_status_changed_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_lockers_on_last_status_changed_at ON public.lockers USING btree (last_status_changed_at);
-
-
---
--- Name: index_lockers_on_last_status_changed_by_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_lockers_on_last_status_changed_by_id ON public.lockers USING btree (last_status_changed_by_id);
 
 
 --
@@ -845,24 +803,10 @@ CREATE INDEX locker_actions_2026_07_company_id_created_at_idx ON public.locker_a
 
 
 --
--- Name: locker_actions_2026_07_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_07_created_at_idx ON public.locker_actions_2026_07 USING btree (created_at);
-
-
---
 -- Name: locker_actions_2026_07_locker_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX locker_actions_2026_07_locker_id_created_at_idx ON public.locker_actions_2026_07 USING btree (locker_id, created_at);
-
-
---
--- Name: locker_actions_2026_07_user_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_07_user_id_created_at_idx ON public.locker_actions_2026_07 USING btree (user_id, created_at);
 
 
 --
@@ -873,24 +817,10 @@ CREATE INDEX locker_actions_2026_08_company_id_created_at_idx ON public.locker_a
 
 
 --
--- Name: locker_actions_2026_08_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_08_created_at_idx ON public.locker_actions_2026_08 USING btree (created_at);
-
-
---
 -- Name: locker_actions_2026_08_locker_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX locker_actions_2026_08_locker_id_created_at_idx ON public.locker_actions_2026_08 USING btree (locker_id, created_at);
-
-
---
--- Name: locker_actions_2026_08_user_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_08_user_id_created_at_idx ON public.locker_actions_2026_08 USING btree (user_id, created_at);
 
 
 --
@@ -901,24 +831,10 @@ CREATE INDEX locker_actions_2026_09_company_id_created_at_idx ON public.locker_a
 
 
 --
--- Name: locker_actions_2026_09_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_09_created_at_idx ON public.locker_actions_2026_09 USING btree (created_at);
-
-
---
 -- Name: locker_actions_2026_09_locker_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX locker_actions_2026_09_locker_id_created_at_idx ON public.locker_actions_2026_09 USING btree (locker_id, created_at);
-
-
---
--- Name: locker_actions_2026_09_user_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_09_user_id_created_at_idx ON public.locker_actions_2026_09 USING btree (user_id, created_at);
 
 
 --
@@ -929,24 +845,10 @@ CREATE INDEX locker_actions_2026_10_company_id_created_at_idx ON public.locker_a
 
 
 --
--- Name: locker_actions_2026_10_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_10_created_at_idx ON public.locker_actions_2026_10 USING btree (created_at);
-
-
---
 -- Name: locker_actions_2026_10_locker_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX locker_actions_2026_10_locker_id_created_at_idx ON public.locker_actions_2026_10 USING btree (locker_id, created_at);
-
-
---
--- Name: locker_actions_2026_10_user_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_10_user_id_created_at_idx ON public.locker_actions_2026_10 USING btree (user_id, created_at);
 
 
 --
@@ -957,24 +859,10 @@ CREATE INDEX locker_actions_2026_11_company_id_created_at_idx ON public.locker_a
 
 
 --
--- Name: locker_actions_2026_11_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_11_created_at_idx ON public.locker_actions_2026_11 USING btree (created_at);
-
-
---
 -- Name: locker_actions_2026_11_locker_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX locker_actions_2026_11_locker_id_created_at_idx ON public.locker_actions_2026_11 USING btree (locker_id, created_at);
-
-
---
--- Name: locker_actions_2026_11_user_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_11_user_id_created_at_idx ON public.locker_actions_2026_11 USING btree (user_id, created_at);
 
 
 --
@@ -985,13 +873,6 @@ CREATE INDEX locker_actions_2026_12_company_id_created_at_idx ON public.locker_a
 
 
 --
--- Name: locker_actions_2026_12_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_12_created_at_idx ON public.locker_actions_2026_12 USING btree (created_at);
-
-
---
 -- Name: locker_actions_2026_12_locker_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -999,24 +880,10 @@ CREATE INDEX locker_actions_2026_12_locker_id_created_at_idx ON public.locker_ac
 
 
 --
--- Name: locker_actions_2026_12_user_id_created_at_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX locker_actions_2026_12_user_id_created_at_idx ON public.locker_actions_2026_12 USING btree (user_id, created_at);
-
-
---
 -- Name: locker_actions_2026_07_company_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
 ALTER INDEX public.index_locker_actions_on_company_id_and_created_at ATTACH PARTITION public.locker_actions_2026_07_company_id_created_at_idx;
-
-
---
--- Name: locker_actions_2026_07_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_created_at ATTACH PARTITION public.locker_actions_2026_07_created_at_idx;
 
 
 --
@@ -1034,24 +901,10 @@ ALTER INDEX public.locker_actions_pkey ATTACH PARTITION public.locker_actions_20
 
 
 --
--- Name: locker_actions_2026_07_user_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_user_id_and_created_at ATTACH PARTITION public.locker_actions_2026_07_user_id_created_at_idx;
-
-
---
 -- Name: locker_actions_2026_08_company_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
 ALTER INDEX public.index_locker_actions_on_company_id_and_created_at ATTACH PARTITION public.locker_actions_2026_08_company_id_created_at_idx;
-
-
---
--- Name: locker_actions_2026_08_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_created_at ATTACH PARTITION public.locker_actions_2026_08_created_at_idx;
 
 
 --
@@ -1069,24 +922,10 @@ ALTER INDEX public.locker_actions_pkey ATTACH PARTITION public.locker_actions_20
 
 
 --
--- Name: locker_actions_2026_08_user_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_user_id_and_created_at ATTACH PARTITION public.locker_actions_2026_08_user_id_created_at_idx;
-
-
---
 -- Name: locker_actions_2026_09_company_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
 ALTER INDEX public.index_locker_actions_on_company_id_and_created_at ATTACH PARTITION public.locker_actions_2026_09_company_id_created_at_idx;
-
-
---
--- Name: locker_actions_2026_09_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_created_at ATTACH PARTITION public.locker_actions_2026_09_created_at_idx;
 
 
 --
@@ -1104,24 +943,10 @@ ALTER INDEX public.locker_actions_pkey ATTACH PARTITION public.locker_actions_20
 
 
 --
--- Name: locker_actions_2026_09_user_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_user_id_and_created_at ATTACH PARTITION public.locker_actions_2026_09_user_id_created_at_idx;
-
-
---
 -- Name: locker_actions_2026_10_company_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
 ALTER INDEX public.index_locker_actions_on_company_id_and_created_at ATTACH PARTITION public.locker_actions_2026_10_company_id_created_at_idx;
-
-
---
--- Name: locker_actions_2026_10_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_created_at ATTACH PARTITION public.locker_actions_2026_10_created_at_idx;
 
 
 --
@@ -1139,24 +964,10 @@ ALTER INDEX public.locker_actions_pkey ATTACH PARTITION public.locker_actions_20
 
 
 --
--- Name: locker_actions_2026_10_user_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_user_id_and_created_at ATTACH PARTITION public.locker_actions_2026_10_user_id_created_at_idx;
-
-
---
 -- Name: locker_actions_2026_11_company_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
 ALTER INDEX public.index_locker_actions_on_company_id_and_created_at ATTACH PARTITION public.locker_actions_2026_11_company_id_created_at_idx;
-
-
---
--- Name: locker_actions_2026_11_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_created_at ATTACH PARTITION public.locker_actions_2026_11_created_at_idx;
 
 
 --
@@ -1174,24 +985,10 @@ ALTER INDEX public.locker_actions_pkey ATTACH PARTITION public.locker_actions_20
 
 
 --
--- Name: locker_actions_2026_11_user_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_user_id_and_created_at ATTACH PARTITION public.locker_actions_2026_11_user_id_created_at_idx;
-
-
---
 -- Name: locker_actions_2026_12_company_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
 --
 
 ALTER INDEX public.index_locker_actions_on_company_id_and_created_at ATTACH PARTITION public.locker_actions_2026_12_company_id_created_at_idx;
-
-
---
--- Name: locker_actions_2026_12_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_created_at ATTACH PARTITION public.locker_actions_2026_12_created_at_idx;
 
 
 --
@@ -1206,13 +1003,6 @@ ALTER INDEX public.index_locker_actions_on_locker_id_and_created_at ATTACH PARTI
 --
 
 ALTER INDEX public.locker_actions_pkey ATTACH PARTITION public.locker_actions_2026_12_pkey;
-
-
---
--- Name: locker_actions_2026_12_user_id_created_at_idx; Type: INDEX ATTACH; Schema: public; Owner: -
---
-
-ALTER INDEX public.index_locker_actions_on_user_id_and_created_at ATTACH PARTITION public.locker_actions_2026_12_user_id_created_at_idx;
 
 
 --
@@ -1374,6 +1164,7 @@ ALTER TABLE ONLY public.teams_users
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261004140000'),
 ('20261004120000'),
 ('20261003140000'),
 ('20261002151657'),
