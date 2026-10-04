@@ -1,17 +1,6 @@
 <%
   # Locals:
-  # - locker_actions:  Pagination of LockerAction (iterable + metadata)
-  # - lockers:         Collection for the Locker dropdown. Pass nil to hide the
-  #                    Locker column and filter (per-locker usage).
-  # - companies:       Collection for the Company dropdown. Pass nil to hide
-  #                    the filter (tenants whose actions are already pinned to
-  #                    their own company).
-  # - users:           Collection for the User dropdown.
-  # - teams:           Collection for the Team dropdown.
-  # - filter_url:      Form action URL (keeps the form submitting to the right place).
-  # - admin:           When true, user names link to admin_user_path.
-  # - locker_scope:    Optional Locker. When present, hidden `locker_id` is sent
-  #                    along with the filter so the per-locker view keeps the scope.
+  # - locker_actions, lockers, companies, users, teams, filter_url, admin, locker_scope
   grouped_user_options =
     users.respond_to?(:each) && users.first&.respond_to?(:company) && users.map(&:company).uniq.size > 1 ?
       grouped_options_for_select(
@@ -27,98 +16,109 @@
         params[:team_id]
       ) :
       options_from_collection_for_select(teams, :id, :name, params[:team_id])
+
+  # locker_scope pins the filter to one locker and is passed as a hidden
+  # field, so don't surface it as a user-facing active filter.
+  activity_filter_params = filter_params.except("locker_id")
+  activity_filter_count = activity_filter_params.compact_blank.size
 %>
 
 <div data-controller="auto-submit">
-  <%= form_with url: filter_url, method: :get, local: true, html: { id: "activity-filters" } do %>
-    <% if locker_scope %>
-      <%= hidden_field_tag :locker_id, locker_scope.id %>
+  <div class="d-flex gap-2 mb-2">
+    <%= render "shared/filters_toggle", target: "activity-filters", count: activity_filter_count %>
+    <% if activity_filter_count.positive? %>
+      <%= link_to t("filters.clear"), filter_url, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
+  </div>
 
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="row g-2 align-items-end">
-          <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small mb-1" for="from"><%= t("activity.filters.from") %></label>
-            <%= date_field_tag :from, params[:from], class: "form-control form-control-sm" %>
-          </div>
-          <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small mb-1" for="to"><%= t("activity.filters.to") %></label>
-            <%= date_field_tag :to, params[:to], class: "form-control form-control-sm" %>
-          </div>
+  <div class="collapse <%= "show" if activity_filter_count.positive? %>" id="activity-filters">
+    <%= form_with url: filter_url, method: :get, local: true do %>
+      <% if locker_scope %>
+        <%= hidden_field_tag :locker_id, locker_scope.id %>
+      <% end %>
 
-          <% if companies %>
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-2 align-items-end">
             <div class="col-6 col-md-3 col-lg-2">
-              <label class="form-label small mb-1" for="company_id"><%= t("admin.lockers.filters.company_label") %></label>
-              <%= select_tag :company_id,
-                    options_from_collection_for_select(companies, :id, :name, params[:company_id]),
-                    include_blank: t("common.all"),
-                    class: "form-select form-select-sm",
-                    data: { action: "change->auto-submit#submit" } %>
+              <label class="form-label small mb-1" for="from"><%= t("activity.filters.from") %></label>
+              <%= date_field_tag :from, params[:from], class: "form-control form-control-sm" %>
             </div>
-          <% end %>
-
-          <% if lockers %>
             <div class="col-6 col-md-3 col-lg-2">
-              <label class="form-label small mb-1" for="locker_id"><%= t("activity.filters.locker") %></label>
-              <%= select_tag :locker_id,
-                    options_from_collection_for_select(lockers, :id, :name, params[:locker_id]),
-                    include_blank: t("common.all"),
-                    class: "form-select form-select-sm",
-                    data: { action: "change->auto-submit#submit" } %>
+              <label class="form-label small mb-1" for="to"><%= t("activity.filters.to") %></label>
+              <%= date_field_tag :to, params[:to], class: "form-control form-control-sm" %>
             </div>
-          <% end %>
 
-          <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small mb-1" for="user_id"><%= t("activity.filters.user") %></label>
-            <%= select_tag :user_id, grouped_user_options,
-                  include_blank: t("common.all"),
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </div>
-
-          <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small mb-1" for="team_id"><%= t("activity.filters.team") %></label>
-            <%= select_tag :team_id, grouped_team_options,
-                  include_blank: t("common.all"),
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </div>
-
-          <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small mb-1" for="action_type"><%= t("activity.filters.action") %></label>
-            <%= select_tag :action_type,
-                  options_for_select(
-                    LockerActions::Filter::ACTIONS.map { |a| [t("locker.activity.actions.#{a}"), a] },
-                    params[:action_type]
-                  ),
-                  include_blank: t("common.all"),
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </div>
-
-          <div class="col-6 col-md-3 col-lg-2">
-            <label class="form-label small mb-1" for="actor_type"><%= t("activity.filters.actor_type") %></label>
-            <%= select_tag :actor_type,
-                  options_for_select(
-                    LockerActions::Filter::ACTOR_TYPES.map { |a| [t("activity.actor_types.#{a}"), a] },
-                    params[:actor_type]
-                  ),
-                  include_blank: t("common.all"),
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </div>
-
-          <div class="col-12 col-md-auto d-flex gap-2 pt-2 pt-md-0">
-            <button type="submit" class="btn btn-sm btn-primary"><%= t("activity.apply") %></button>
-            <% if filter_params.any? %>
-              <%= link_to t("filters.clear"), filter_url, class: "btn btn-sm btn-outline-secondary" %>
+            <% if companies %>
+              <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label small mb-1" for="company_id"><%= t("admin.lockers.filters.company_label") %></label>
+                <%= select_tag :company_id,
+                      options_from_collection_for_select(companies, :id, :name, params[:company_id]),
+                      include_blank: t("common.all"),
+                      class: "form-select form-select-sm",
+                      data: {action: "change->auto-submit#submit"} %>
+              </div>
             <% end %>
+
+            <% if lockers %>
+              <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label small mb-1" for="locker_id"><%= t("activity.filters.locker") %></label>
+                <%= select_tag :locker_id,
+                      options_from_collection_for_select(lockers, :id, :name, params[:locker_id]),
+                      include_blank: t("common.all"),
+                      class: "form-select form-select-sm",
+                      data: {action: "change->auto-submit#submit"} %>
+              </div>
+            <% end %>
+
+            <div class="col-6 col-md-3 col-lg-2">
+              <label class="form-label small mb-1" for="user_id"><%= t("activity.filters.user") %></label>
+              <%= select_tag :user_id, grouped_user_options,
+                    include_blank: t("common.all"),
+                    class: "form-select form-select-sm",
+                    data: {action: "change->auto-submit#submit"} %>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2">
+              <label class="form-label small mb-1" for="team_id"><%= t("activity.filters.team") %></label>
+              <%= select_tag :team_id, grouped_team_options,
+                    include_blank: t("common.all"),
+                    class: "form-select form-select-sm",
+                    data: {action: "change->auto-submit#submit"} %>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2">
+              <label class="form-label small mb-1" for="action_type"><%= t("activity.filters.action") %></label>
+              <%= select_tag :action_type,
+                    options_for_select(
+                      LockerActions::Filter::ACTIONS.map { |a| [t("locker.activity.actions.#{a}"), a] },
+                      params[:action_type]
+                    ),
+                    include_blank: t("common.all"),
+                    class: "form-select form-select-sm",
+                    data: {action: "change->auto-submit#submit"} %>
+            </div>
+
+            <div class="col-6 col-md-3 col-lg-2">
+              <label class="form-label small mb-1" for="actor_type"><%= t("activity.filters.actor_type") %></label>
+              <%= select_tag :actor_type,
+                    options_for_select(
+                      LockerActions::Filter::ACTOR_TYPES.map { |a| [t("activity.actor_types.#{a}"), a] },
+                      params[:actor_type]
+                    ),
+                    include_blank: t("common.all"),
+                    class: "form-select form-select-sm",
+                    data: {action: "change->auto-submit#submit"} %>
+            </div>
+
+            <div class="col-12 col-md-auto d-flex gap-2 pt-2 pt-md-0">
+              <button type="submit" class="btn btn-sm btn-primary"><%= t("activity.apply") %></button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 
   <% if locker_actions.any? %>
     <div class="table-responsive">

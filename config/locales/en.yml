@@ -38,8 +38,13 @@ en:
     unassigned: "Unassigned"
 
   filters:
+    toggle: "Filters"
     apply: "Apply"
     clear: "Clear filters"
+    name_label: "Name"
+    device_id_label: "Device ID"
+    members_label: "Members"
+    lockers_label: "Lockers"
     name_placeholder: "Search by name…"
     device_id_placeholder: "Device ID…"
     member_placeholder: "Search members…"

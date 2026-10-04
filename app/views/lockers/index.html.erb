@@ -8,7 +8,8 @@
     <small class="text-secondary"><%= t("lockers.subtitle") %></small>
   </div>
   <div class="d-flex align-items-center gap-2">
-    <% if filter_params.any? %>
+    <%= render "shared/filters_toggle", target: "client-lockers-filters", count: active_filters_count %>
+    <% if active_filters_count.positive? %>
       <%= link_to t("filters.clear"), lockers_path, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
     <span class="badge text-bg-light"><%= t("lockers.total", count: @lockers.total) %></span>
@@ -16,7 +17,33 @@
 </div>
 
 <div data-controller="auto-submit">
-  <%= form_with url: lockers_path, method: :get, local: true, html: { id: "client-filters" } do %><% end %>
+  <div class="collapse <%= "show" if active_filters_count.positive? %>" id="client-lockers-filters">
+    <div class="card card-body mb-3">
+      <%= form_with url: lockers_path, method: :get, local: true do %>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small text-secondary" for="name"><%= t("filters.name_label") %></label>
+            <%= text_field_tag :name, params[:name],
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.name_placeholder"),
+                               data: {action: "input->auto-submit#submitDebounced"} %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-secondary" for="status"><%= t("lockers.filters.status_label") %></label>
+            <%= select_tag :status,
+                  options_for_select(
+                    [[t("common.all"), ""],
+                     [t("lockers.status.open"), "open"],
+                     [t("lockers.status.closed"), "closed"]],
+                    params[:status]
+                  ),
+                  class: "form-select form-select-sm",
+                  data: {action: "change->auto-submit#submit"} %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
   <% if @lockers.any? %>
     <div class="table-responsive">
@@ -28,30 +55,6 @@
             <th scope="col"><%= t("lockers.headers.device_id") %></th>
             <th scope="col"><%= t("lockers.headers.status") %></th>
             <th scope="col"><%= t("lockers.headers.last_change") %></th>
-          </tr>
-          <tr class="table-light small">
-            <th></th>
-            <th>
-              <%= text_field_tag :name, params[:name],
-                                 form: "client-filters",
-                                 class: "form-control form-control-sm",
-                                 placeholder: t("filters.name_placeholder"),
-                                 data: { action: "input->auto-submit#submitDebounced" } %>
-            </th>
-            <th></th>
-            <th>
-              <%= select_tag :status,
-                    options_for_select(
-                      [[t("common.all"), ""],
-                       [t("lockers.status.open"), "open"],
-                       [t("lockers.status.closed"), "closed"]],
-                      params[:status]
-                    ),
-                    form: "client-filters",
-                    class: "form-select form-select-sm",
-                    data: { action: "change->auto-submit#submit" } %>
-            </th>
-            <th></th>
           </tr>
         </thead>
         <tbody>

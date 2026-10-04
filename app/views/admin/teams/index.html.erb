@@ -6,7 +6,8 @@
     <small class="text-secondary"><%= t("admin.teams.subtitle") %></small>
   </div>
   <div class="d-flex align-items-center gap-2">
-    <% if filter_params.any? %>
+    <%= render "shared/filters_toggle", target: "teams-filters", count: active_filters_count %>
+    <% if active_filters_count.positive? %>
       <%= link_to t("filters.clear"), admin_teams_path, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
     <span class="badge text-bg-light"><%= t("admin.teams.total", count: @teams.total) %></span>
@@ -14,7 +15,43 @@
 </div>
 
 <div data-controller="auto-submit">
-  <%= form_with url: admin_teams_path, method: :get, local: true, html: { id: "admin-filters" } do %><% end %>
+  <div class="collapse <%= "show" if active_filters_count.positive? %>" id="teams-filters">
+    <div class="card card-body mb-3">
+      <%= form_with url: admin_teams_path, method: :get, local: true do %>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label small text-secondary" for="name"><%= t("filters.name_label") %></label>
+            <%= text_field_tag :name, params[:name],
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.name_placeholder"),
+                               data: {action: "input->auto-submit#submitDebounced"} %>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small text-secondary" for="company_id"><%= t("admin.teams.filters.company_label") %></label>
+            <%= select_tag :company_id,
+                  options_from_collection_for_select(@companies, :id, :name, params[:company_id]),
+                  include_blank: t("common.all"),
+                  class: "form-select form-select-sm",
+                  data: {action: "change->auto-submit#submit"} %>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small text-secondary" for="members"><%= t("filters.members_label") %></label>
+            <%= text_field_tag :members, params[:members],
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.member_placeholder"),
+                               data: {action: "input->auto-submit#submitDebounced"} %>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small text-secondary" for="lockers"><%= t("filters.lockers_label") %></label>
+            <%= text_field_tag :lockers, params[:lockers],
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.locker_placeholder"),
+                               data: {action: "input->auto-submit#submitDebounced"} %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
   <div class="table-responsive">
     <table class="table table-striped align-middle">
@@ -25,38 +62,6 @@
           <th scope="col"><%= t("admin.teams.headers.company") %></th>
           <th scope="col"><%= t("admin.teams.headers.members") %></th>
           <th scope="col"><%= t("admin.teams.headers.lockers") %></th>
-        </tr>
-        <tr class="table-light small">
-          <th></th>
-          <th>
-            <%= text_field_tag :name, params[:name],
-                               form: "admin-filters",
-                               class: "form-control form-control-sm",
-                               placeholder: t("filters.name_placeholder"),
-                               data: { action: "input->auto-submit#submitDebounced" } %>
-          </th>
-          <th>
-            <%= select_tag :company_id,
-                  options_from_collection_for_select(@companies, :id, :name, params[:company_id]),
-                  include_blank: t("common.all"),
-                  form: "admin-filters",
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </th>
-          <th>
-            <%= text_field_tag :members, params[:members],
-                               form: "admin-filters",
-                               class: "form-control form-control-sm",
-                               placeholder: t("filters.member_placeholder"),
-                               data: { action: "input->auto-submit#submitDebounced" } %>
-          </th>
-          <th>
-            <%= text_field_tag :lockers, params[:lockers],
-                               form: "admin-filters",
-                               class: "form-control form-control-sm",
-                               placeholder: t("filters.locker_placeholder"),
-                               data: { action: "input->auto-submit#submitDebounced" } %>
-          </th>
         </tr>
       </thead>
       <tbody>

@@ -1,0 +1,16 @@
+<%
+  # Locals:
+  # - target: String — id of the collapsible filters block
+  # - count:  Integer — number of currently-applied filters
+%>
+<button class="btn btn-sm btn-outline-primary"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#<%= target %>"
+        aria-expanded="<%= count.positive? %>"
+        aria-controls="<%= target %>">
+  <%= t("filters.toggle") %>
+  <% if count.positive? %>
+    <span class="badge text-bg-primary ms-1"><%= count %></span>
+  <% end %>
+</button>

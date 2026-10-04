@@ -8,7 +8,8 @@
     <small class="text-secondary"><%= t("admin.lockers.subtitle") %></small>
   </div>
   <div class="d-flex align-items-center gap-2">
-    <% if filter_params.any? %>
+    <%= render "shared/filters_toggle", target: "lockers-filters", count: active_filters_count %>
+    <% if active_filters_count.positive? %>
       <%= link_to t("filters.clear"), admin_lockers_path, class: "btn btn-sm btn-outline-secondary" %>
     <% end %>
     <span class="badge text-bg-light"><%= t("admin.lockers.total", count: @lockers.total) %></span>
@@ -16,7 +17,64 @@
 </div>
 
 <div data-controller="auto-submit">
-  <%= form_with url: admin_lockers_path, method: :get, local: true, html: { id: "admin-filters" } do %><% end %>
+  <div class="collapse <%= "show" if active_filters_count.positive? %>" id="lockers-filters">
+    <div class="card card-body mb-3">
+      <%= form_with url: admin_lockers_path, method: :get, local: true do %>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small text-secondary" for="name"><%= t("filters.name_label") %></label>
+            <%= text_field_tag :name, params[:name],
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.name_placeholder"),
+                               data: {action: "input->auto-submit#submitDebounced"} %>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-secondary" for="device_id"><%= t("filters.device_id_label") %></label>
+            <%= text_field_tag :device_id, params[:device_id],
+                               class: "form-control form-control-sm",
+                               placeholder: t("filters.device_id_placeholder"),
+                               data: {action: "input->auto-submit#submitDebounced"} %>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-secondary" for="company_id"><%= t("admin.lockers.filters.company_label") %></label>
+            <%= select_tag :company_id,
+                  options_from_collection_for_select(@companies, :id, :name, params[:company_id]),
+                  include_blank: t("common.all"),
+                  class: "form-select form-select-sm",
+                  data: {action: "change->auto-submit#clearThen", clear: "team_id"} %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-secondary" for="status"><%= t("admin.lockers.filters.status_label") %></label>
+            <%= select_tag :status,
+                  options_for_select(
+                    [[t("common.all"), ""],
+                     [t("lockers.status.open"), "open"],
+                     [t("lockers.status.closed"), "closed"]],
+                    params[:status]
+                  ),
+                  class: "form-select form-select-sm",
+                  data: {action: "change->auto-submit#submit"} %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small text-secondary" for="team_id"><%= t("admin.lockers.filters.team_label") %></label>
+            <% team_options =
+                 if params[:company_id].present?
+                   options_from_collection_for_select(@teams, :id, :name, params[:team_id])
+                 else
+                   grouped_options_for_select(
+                     @teams.group_by { |t| t.company.name }.transform_values { |ts| ts.map { |t| [t.name, t.id] } },
+                     params[:team_id]
+                   )
+                 end %>
+            <%= select_tag :team_id, team_options,
+                  include_blank: t("common.all"),
+                  class: "form-select form-select-sm",
+                  data: {action: "change->auto-submit#submit"} %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
   <div class="table-responsive">
     <table class="table table-striped align-middle">
@@ -29,60 +87,6 @@
           <th scope="col"><%= t("admin.lockers.headers.status") %></th>
           <th scope="col"><%= t("admin.lockers.headers.last_change") %></th>
           <th scope="col"><%= t("admin.lockers.headers.teams") %></th>
-        </tr>
-        <tr class="table-light small">
-          <th></th>
-          <th>
-            <%= text_field_tag :name, params[:name],
-                               form: "admin-filters",
-                               class: "form-control form-control-sm",
-                               placeholder: t("filters.name_placeholder"),
-                               data: { action: "input->auto-submit#submitDebounced" } %>
-          </th>
-          <th>
-            <%= text_field_tag :device_id, params[:device_id],
-                               form: "admin-filters",
-                               class: "form-control form-control-sm",
-                               placeholder: t("filters.device_id_placeholder"),
-                               data: { action: "input->auto-submit#submitDebounced" } %>
-          </th>
-          <th>
-            <%= select_tag :company_id,
-                  options_from_collection_for_select(@companies, :id, :name, params[:company_id]),
-                  include_blank: t("common.all"),
-                  form: "admin-filters",
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#clearThen", clear: "team_id" } %>
-          </th>
-          <th>
-            <%= select_tag :status,
-                  options_for_select(
-                    [[t("common.all"), ""],
-                     [t("lockers.status.open"), "open"],
-                     [t("lockers.status.closed"), "closed"]],
-                    params[:status]
-                  ),
-                  form: "admin-filters",
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </th>
-          <th></th>
-          <th>
-            <% team_options =
-                 if params[:company_id].present?
-                   options_from_collection_for_select(@teams, :id, :name, params[:team_id])
-                 else
-                   grouped_options_for_select(
-                     @teams.group_by { |t| t.company.name }.transform_values { |ts| ts.map { |t| [t.name, t.id] } },
-                     params[:team_id]
-                   )
-                 end %>
-            <%= select_tag :team_id, team_options,
-                  include_blank: t("common.all"),
-                  form: "admin-filters",
-                  class: "form-select form-select-sm",
-                  data: { action: "change->auto-submit#submit" } %>
-          </th>
         </tr>
       </thead>
       <tbody>
