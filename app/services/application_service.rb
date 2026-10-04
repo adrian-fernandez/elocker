@@ -1,13 +1,7 @@
-# Base class for one-shot service objects.
-#
-# Convention: subclasses accept their collaborators via keyword arguments in
-# `initialize` and expose a single public `call` method. The class-level
-# `.call(**args)` shortcut lets callers write `Thing::DoIt.call(x: 1)` instead
-# of `Thing::DoIt.new(x: 1).call`.
-#
-# Dependencies that are expected to vary (e.g. model classes) should be
-# injectable via kwargs with a sensible default pointing at the real class, so
-# tests can swap them out without stubbing globals.
+# Base for one-shot service objects. Subclasses accept collaborators via
+# keyword arguments and expose a single public `#call`. Dependencies that
+# are expected to vary (model classes, policies) should be injectable via
+# kwargs with a sensible default so tests can swap them without stubbing.
 class ApplicationService
   def self.call(**args)
     new(**args).call

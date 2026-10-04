@@ -1,12 +1,5 @@
 module LockerActions
-  # Returns the LockerAction relation visible to a given user.
-  #
-  # - Platform owner → every action on the platform.
-  # - Tenant user    → only actions on lockers they can see, scoped to their
-  #                    company (belt-and-suspenders alongside the composite
-  #                    FK that keeps actions inside their tenant).
-  #
-  # Mirrors the policy of `Lockers::VisibleTo` so the two can never diverge:
+  # Mirrors Lockers::VisibleTo so the two policies cannot diverge:
   # "if you can see the locker, you can see its actions."
   class VisibleTo < ApplicationService
     def initialize(user:, model: LockerAction, lockers_scope: Lockers::VisibleTo, checker: Users::PlatformOwnerChecker)

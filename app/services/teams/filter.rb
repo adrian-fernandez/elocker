@@ -1,8 +1,4 @@
 module Teams
-  # Applies query-string filters to a Team relation.
-  #
-  # Each filter is its own public method: it receives a scope and returns a
-  # scope, idempotent on blank input. `call` composes them in explicit order.
   class Filter < ApplicationService
     def initialize(scope:, params:, model: Team)
       @scope = scope

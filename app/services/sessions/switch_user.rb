@@ -1,8 +1,6 @@
 module Sessions
-  # Mocked "login as" — finds the target user and stores its id in the session.
-  #
-  # The session store is passed in rather than reached for globally, which lets
-  # tests use a plain Hash in place of Rails' session hash.
+  # Mocked "login as" — the session store is passed in rather than reached
+  # for globally, so tests can use a plain Hash in place of Rails' session.
   class SwitchUser < ApplicationService
     def initialize(user_id:, session:, model: User)
       @user_id = user_id

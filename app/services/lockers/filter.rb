@@ -1,11 +1,6 @@
 module Lockers
-  # Applies query-string filters to an existing Locker relation.
-  #
-  # Each filter is its own public method: it receives a scope and returns a
-  # scope, idempotent on blank input. `call` composes them in explicit order.
-  # Add a new filter by writing a `by_<thing>` method and adding one line to
-  # `call`; delete one by removing the line. Each method is testable in
-  # isolation without touching the others.
+  # Each filter is a public method returning a scope, idempotent on blank
+  # input. `call` composes them so adding a filter is one method + one line.
   class Filter < ApplicationService
     def initialize(scope:, params:, model: Locker)
       @scope = scope
@@ -51,7 +46,7 @@ module Lockers
     def by_team(scope)
       return scope if @params[:team_id].blank?
 
-      scope.joins(:teams).where(teams: { id: @params[:team_id] })
+      scope.joins(:teams).where(teams: {id: @params[:team_id]})
     end
 
     private

@@ -1,8 +1,4 @@
 module Users
-  # Applies query-string filters to a User relation.
-  #
-  # Each filter is its own public method: it receives a scope and returns a
-  # scope, idempotent on blank input. `call` composes them in explicit order.
   class Filter < ApplicationService
     def initialize(scope:, params:, model: User)
       @scope = scope
@@ -33,7 +29,7 @@ module Users
     def by_team(scope)
       return scope if @params[:team_id].blank?
 
-      scope.joins(:teams).where(teams: { id: @params[:team_id] })
+      scope.joins(:teams).where(teams: {id: @params[:team_id]})
     end
 
     private

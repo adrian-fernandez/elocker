@@ -1,8 +1,4 @@
 module Companies
-  # Applies query-string filters to a Company relation.
-  #
-  # Each filter is its own public method: it receives a scope and returns a
-  # scope, idempotent on blank input. `call` composes them in explicit order.
   class Filter < ApplicationService
     def initialize(scope:, params:, model: Company)
       @scope = scope
@@ -13,8 +9,7 @@ module Companies
     def call
       scope = @scope
       scope = by_name(scope)
-      scope = by_type(scope)
-      scope
+      by_type(scope)
     end
 
     def by_name(scope)

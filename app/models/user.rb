@@ -5,4 +5,10 @@ class User < ApplicationRecord
   has_many :locker_actions
 
   validates :name, presence: true
+
+  scope :grouped_by_company, -> {
+    includes(:company)
+      .order("companies.name ASC, users.name ASC")
+      .references(:company)
+  }
 end

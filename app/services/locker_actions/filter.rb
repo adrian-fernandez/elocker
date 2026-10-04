@@ -1,16 +1,12 @@
 module LockerActions
-  # Applies query-string filters to a LockerAction relation.
-  #
-  # Each filter is a public method that takes a scope and returns a scope,
-  # idempotent on blank input. `call` composes them in explicit order.
   class Filter < ApplicationService
-    ACTIONS      = LockerAction.actions.keys.freeze
-    ACTOR_TYPES  = %w[platform tenant device].freeze
+    ACTIONS = LockerAction.actions.keys.freeze
+    ACTOR_TYPES = %w[platform tenant device].freeze
 
     def initialize(scope:, params:, model: LockerAction)
-      @scope  = scope
+      @scope = scope
       @params = params
-      @model  = model
+      @model = model
     end
 
     def call
@@ -49,7 +45,7 @@ module LockerActions
 
       scope
         .joins("INNER JOIN teams_users ON teams_users.user_id = locker_actions.user_id")
-        .where(teams_users: { team_id: @params[:team_id] })
+        .where(teams_users: {team_id: @params[:team_id]})
     end
 
     def by_action(scope)
@@ -62,9 +58,9 @@ module LockerActions
     def by_actor_type(scope)
       case @params[:actor_type]
       when "platform"
-        scope.joins(user: :company).where(companies: { platform_owner: true })
+        scope.joins(user: :company).where(companies: {platform_owner: true})
       when "tenant"
-        scope.joins(user: :company).where(companies: { platform_owner: false })
+        scope.joins(user: :company).where(companies: {platform_owner: false})
       when "device"
         scope.where(user_id: nil)
       else

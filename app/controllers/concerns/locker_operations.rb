@@ -1,9 +1,7 @@
-# Shared `open` / `close` endpoints for the two locker controllers (admin and
-# client). The only thing that differs between the two namespaces is the URL
-# the redirect lands on, so subclasses only have to implement `locker_route`.
-#
-# Error handling for the three operator-raised errors lives here as
-# `rescue_from` so the action bodies stay to one line each.
+# Shared open/close endpoints for the admin and client lockers controllers.
+# Subclasses implement `locker_route` to point redirects at the right URL
+# namespace. Errors raised by the operator are translated to responses once
+# here via `rescue_from` so action bodies stay one-liners.
 module LockerOperations
   extend ActiveSupport::Concern
 
@@ -41,9 +39,6 @@ module LockerOperations
     ::Lockers::VisibleTo.call(user: current_user)
   end
 
-  # Subclasses implement this to point at the right locker show in their
-  # URL namespace (`locker_path` for the client controller,
-  # `admin_locker_path` for the admin one).
   def locker_route(_locker_or_id)
     raise NotImplementedError, "#{self.class} must implement #locker_route"
   end

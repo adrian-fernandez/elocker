@@ -1,20 +1,10 @@
 module Lockers
   module Operators
-    # Abstract command for operating a locker (open/close/future).
-    #
-    # Encapsulates the complete command cycle that every operation shares:
-    #
-    #   1. Authorize the user against the locker (same policy as `VisibleTo`).
-    #   2. Validate the locker's current state (can't open an open locker).
-    #   3. In a single DB transaction:
-    #        a. Persist the user-triggered request action.
-    #        b. Dispatch the command to the device via the injected API driver.
-    #        c. Persist the device-reported response action and update the
-    #           locker's status (only if the driver reports success).
-    #
-    # Subclasses declare which action symbols and final status apply via
-    # three tiny template methods; nothing else changes. New operations
-    # (unlock-and-hold, boot into service mode, etc.) are a new subclass.
+    # Abstract command for operating a locker. Encapsulates the complete
+    # cycle every operation shares: authorize, state-validate, persist a
+    # request action, dispatch to the device driver, persist the response
+    # action, update the locker status. Subclasses declare the specific
+    # action symbols + driver command via template methods.
     class Base < ApplicationService
       class NotAllowedError < StandardError; end
       class InvalidStateError < StandardError; end
@@ -28,18 +18,14 @@ module Lockers
       end
 
       def call
-        # Authorization is a read-only check and lives OUTSIDE the lock so a
-        # 403 doesn't need to spin a DB row lock.
         authorize!
 
-        # `requires_new: true` so a device failure rolls back the request
-        # row via a savepoint, even if we're already inside a surrounding
-        # transaction (test wrappers, user-code batches, etc.).
+        # requires_new: a device failure must roll back the request row
+        # via a savepoint, even if the caller already opened a transaction.
         ActiveRecord::Base.transaction(requires_new: true) do
-          # SELECT … FOR UPDATE on this locker row. Two concurrent open/close
-          # requests on the same locker serialize here: the second one blocks
-          # until the first commits, then re-reads `@locker` and will fail
-          # `validate_state!` because status is already in the target state.
+          # SELECT ... FOR UPDATE serialises concurrent operate attempts
+          # on the same locker: the second one blocks, re-reads status,
+          # and fails validate_state! if the first one already landed.
           @locker.lock!
 
           validate_state!
@@ -55,8 +41,8 @@ module Lockers
 
       private
 
-      # Delegates authorization to the same scope that gates visibility, so
-      # the "can operate" and "can see" policies cannot diverge.
+      # "Can operate" delegates to the same scope that gates "can see", so
+      # the two policies cannot diverge.
       def authorize!
         return if @visibility.call(user: @user).exists?(id: @locker.id)
 
@@ -67,8 +53,7 @@ module Lockers
       def validate_state!
         return if initial_state_valid?
 
-        raise InvalidStateError,
-              "Locker is already #{@locker.status}"
+        raise InvalidStateError, "Locker is already #{@locker.status}"
       end
 
       def create_request!
@@ -98,7 +83,6 @@ module Lockers
         @api.public_send(driver_command)
       end
 
-      # Subclass contract — four tiny template methods:
       def initial_state_valid?
         raise NotImplementedError
       end
