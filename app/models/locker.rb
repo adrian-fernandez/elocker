@@ -5,7 +5,7 @@
 # see and operate it (useful for provisioning and self-test).
 class Locker < ApplicationRecord
   belongs_to :physical_device
-  belongs_to :company, optional: true
+  belongs_to :company, optional: true, counter_cache: :lockers_count
   belongs_to :last_status_changed_by,
              class_name: "User",
              optional: true
@@ -28,6 +28,11 @@ class Locker < ApplicationRecord
 
   delegate :device_id, to: :physical_device, allow_nil: true
 
+  validates :name, presence: true
+  validates :started_at, presence: true
+  validate :ended_at_after_started_at
+  validate :company_is_tenant
+
   def active?
     ended_at.nil?
   end
@@ -43,4 +48,25 @@ class Locker < ApplicationRecord
   after_update_commit  -> { broadcast_refresh_to "lockers" }
   after_create_commit  -> { broadcast_refresh_to "lockers" }
   after_destroy_commit -> { broadcast_refresh_to "lockers" }
+
+  private
+
+  def ended_at_after_started_at
+    return if ended_at.nil? || started_at.nil?
+    return if ended_at > started_at
+
+    errors.add(:ended_at, "must be after started_at")
+  end
+
+  # A Locker contract represents a tenant owning a device. The platform-
+  # owner company (eLocker) can never be a Locker's owner — platform acts
+  # on unassigned (NULL) lockers via its elevated role instead. Protects
+  # against UI-bypassing POSTs that would silently point a locker at the
+  # eLocker company.
+  def company_is_tenant
+    return if company.nil?
+    return unless company.platform_owner
+
+    errors.add(:company, "cannot be the platform owner")
+  end
 end

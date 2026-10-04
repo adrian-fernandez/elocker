@@ -19,6 +19,11 @@ class CreateLockerActions < ActiveRecord::Migration[8.1]
     add_index :locker_actions, [:user_id, :created_at]
     add_index :locker_actions, [:company_id, :created_at]
 
+    # Pure date-range filters without a locker/user/company predicate hit
+    # this one. Common for "all platform activity between X and Y" in the
+    # admin global view.
+    add_index :locker_actions, :created_at
+
     add_foreign_key :locker_actions, :companies
   end
 end

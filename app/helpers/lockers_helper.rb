@@ -42,4 +42,16 @@ module LockersHelper
 
     tag.span(t("common.unassigned"), class: "badge text-bg-warning")
   end
+
+  # Renders a user's name linked to its admin show when `linked` is true,
+  # or as plain-text otherwise. Used by last-change cells, activity rows,
+  # etc. — anywhere a user name may or may not get a deep link depending
+  # on viewer role.
+  def linked_user_name(user, linked:)
+    if linked
+      link_to(user.name, admin_user_path(user), class: "text-decoration-none")
+    else
+      h(user.name)
+    end
+  end
 end

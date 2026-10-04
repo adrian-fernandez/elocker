@@ -405,6 +405,61 @@ regardless of context.
 
 ---
 
+## Scale readiness
+
+The current build targets "100k+ users / 1k+ companies / millions of locker
+actions" without changing the architecture.
+
+**Indexes designed for the hot paths**
+
+| Query | Index used |
+|---|---|
+| Tenant lockers list (`company_id = ? AND ended_at IS NULL`) | `index_lockers_on_company_id_active` (partial btree, `WHERE ended_at IS NULL`) |
+| Device ownership history (`physical_device_id = ?`) | `lockers.physical_device_id` (plain btree, from `t.references`) |
+| Only-one-active-contract-per-device invariant | `index_lockers_on_physical_device_id_active` (partial unique) |
+| Composite tenant FKs | `(id, company_id)` composite uniques on `lockers`, `teams`, `users` |
+| Action timeline per locker | `(locker_id, created_at)` |
+| Action timeline per user | `(user_id, created_at)` |
+| Action timeline per tenant | `(company_id, created_at)` |
+| Pure date-range filter on activity | `locker_actions.created_at` plain |
+| Admin dashboard sort by name | `companies.name` plain |
+| **ILIKE search** on name / device_id | **`pg_trgm` GIN indexes** on `companies.name`, `users.name`, `teams.name`, `lockers.name`, `physical_devices.device_id` (migration `20261003140000`) |
+
+The pg_trgm GIN indexes are what keep the ILIKE-based column filters fast at
+scale — a plain btree can't satisfy a `%foo%` leading-wildcard query and
+would degrade to seq scans. With trigram GIN, the same filter stays in the
+sub-millisecond range at millions of rows.
+
+**Counter caches**
+
+`companies` carries `users_count`, `teams_count`, and `lockers_count`
+updated by Rails via `counter_cache:` on the three `belongs_to` sides. The
+admin companies dashboard reads them directly — no SELECT COUNT per row per
+column, which at scale would be N × 3 extra queries for an unpaginated list.
+
+**DB-level invariants (so a buggy service can't violate them)**
+
+- Partial unique on `(physical_device_id) WHERE ended_at IS NULL` → at
+  most one active contract per device.
+- Partial unique on `(platform_owner) WHERE platform_owner = TRUE` →
+  at most one platform-owner company.
+- CHECK constraint `lockers.ended_at IS NULL OR ended_at > started_at`.
+- Composite tenant FKs listed in [Security mechanisms](#security-mechanisms).
+- Model-level `company_matches_locker` and `user_matches_action_type` on
+  `LockerAction` keep the event-log contract honest even when the
+  controller layer is bypassed.
+
+**Still worth doing before you push past ~1M actions**
+
+- Partition `locker_actions` by `created_at` (monthly) so pagination and
+  retention don't scan the whole table.
+- Fragment / Russian-doll caching on activity rows
+  (`locker_action.cache_key_with_version`).
+- Cursor pagination for `/activity` to avoid the `COUNT(*)` round trip.
+- Read replicas for the activity / dashboards traffic once latency matters.
+
+---
+
 ## Technical decisions
 
 ### Services + dependency injection (entity-first)

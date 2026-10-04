@@ -266,11 +266,21 @@ en:
     transfer:
       page_title: "Transfer device"
       heading: "Transfer %{name}"
-      intro_html: "This closes the current contract (keeping its history intact) and opens a new one. The device will be <strong>unassigned</strong> if no company is selected."
+      intro_html: "This closes the current contract (keeping its history intact) and opens a new one."
       current_label: "Current owner"
+
+      transfer_card_heading: "Transfer to another company"
+      transfer_card_hint: "Opens a new contract under the chosen company with the name you pick."
       new_company_label: "New company"
-      unassigned_option: "— Unassigned (platform-only) —"
+      new_company_prompt: "— Choose a company —"
       new_name_label: "New locker name"
       new_name_hint: "The tenant will see this name in their locker list."
       submit: "Transfer device"
+
+      unassign_card_heading: "Return to the unassigned pool"
+      unassign_card_hint_html: "Closes the current contract and leaves the device <strong>available</strong> again. Only platform-owner users will see and operate it."
+      unassign_submit: "Unassign device"
+      unassign_confirm: "Return this device to the unassigned pool?"
+
       cancel: "Cancel"
+      no_tenants_available: "No other tenants to transfer to."

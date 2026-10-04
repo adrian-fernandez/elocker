@@ -68,13 +68,13 @@
               <% end %>
             </td>
             <td class="text-end">
-              <%= link_to company.users.length, admin_users_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
+              <%= link_to company.users_count, admin_users_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
             </td>
             <td class="text-end">
-              <%= link_to company.teams.length, admin_teams_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
+              <%= link_to company.teams_count, admin_teams_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
             </td>
             <td class="text-end">
-              <%= link_to company.lockers.length, admin_lockers_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
+              <%= link_to company.lockers_count, admin_lockers_path(company_id: company.id), class: "badge text-bg-light border text-decoration-none" %>
             </td>
           </tr>
         <% end %>

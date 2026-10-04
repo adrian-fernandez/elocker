@@ -6,5 +6,11 @@ FactoryBot.define do
     locker
     team { build(:team, company: locker.company) }
     company_id { locker.company_id }
+
+    # Deliberately wrong — a team in a different company. Useful to drive
+    # negative tests that confirm the composite FKs actually reject it.
+    trait :cross_company do
+      team { build(:team, company: create(:company)) }
+    end
   end
 end

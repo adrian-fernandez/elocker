@@ -28,7 +28,13 @@ class Admin::LockersController < Admin::BaseController
 
   def transfer_form
     @locker = scope.includes(:company, :physical_device).find(params[:id])
-    @companies = Company.where(platform_owner: false).order(:name)
+    # Only valid tenants, and never the current owner (nothing to transfer
+    # if "new" == "current"). For unassigned lockers the current owner is
+    # nil, so the full tenant list stays.
+    @companies = Company
+      .where(platform_owner: false)
+      .where.not(id: @locker.company_id)
+      .order(:name)
   end
 
   def transfer

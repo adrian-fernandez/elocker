@@ -4,43 +4,84 @@
   <%= link_to t("locker.back_to_list"), admin_locker_path(@locker), class: "text-decoration-none small" %>
 </nav>
 
-<h1 class="h3 mb-3"><%= t("locker.transfer.heading", name: @locker.name) %></h1>
+<h1 class="h3 mb-1"><%= t("locker.transfer.heading", name: @locker.name) %></h1>
 <p class="text-secondary mb-4"><%= t("locker.transfer.intro_html") %></p>
 
-<div class="card">
+<div class="card mb-4">
   <div class="card-body">
-    <%= form_with url: transfer_admin_locker_path(@locker), method: :post, local: true do %>
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label text-secondary"><%= t("locker.transfer.current_label") %></label>
-          <div class="form-control-plaintext">
-            <%= locker_owner_badge(@locker) %>
-            <span class="text-secondary mx-1">·</span>
-            <code><%= @locker.device_id %></code>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label text-secondary small"><%= t("locker.transfer.current_label") %></label>
+        <div class="form-control-plaintext">
+          <%= locker_owner_badge(@locker) %>
+          <span class="text-secondary mx-1">·</span>
+          <code><%= @locker.device_id %></code>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-7">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">
+        <%= t("locker.transfer.transfer_card_heading") %>
+      </div>
+      <div class="card-body">
+        <% if @companies.any? %>
+          <p class="text-secondary small"><%= t("locker.transfer.transfer_card_hint") %></p>
+
+          <%= form_with url: transfer_admin_locker_path(@locker), method: :post, local: true do %>
+            <div class="mb-3">
+              <label class="form-label" for="company_id"><%= t("locker.transfer.new_company_label") %></label>
+              <%= select_tag :company_id,
+                    options_from_collection_for_select(@companies, :id, :name),
+                    prompt: t("locker.transfer.new_company_prompt"),
+                    class: "form-select",
+                    required: true %>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="name"><%= t("locker.transfer.new_name_label") %></label>
+              <%= text_field_tag :name,
+                    @locker.assigned? ? @locker.name : @locker.device_id,
+                    class: "form-control",
+                    required: true %>
+              <small class="form-text text-secondary"><%= t("locker.transfer.new_name_hint") %></small>
+            </div>
+
+            <div class="d-flex gap-2">
+              <%= submit_tag t("locker.transfer.submit"), class: "btn btn-primary" %>
+              <%= link_to t("locker.transfer.cancel"), admin_locker_path(@locker), class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-secondary fst-italic mb-0"><%= t("locker.transfer.no_tenants_available") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if @locker.assigned? %>
+    <div class="col-md-5">
+      <div class="card h-100 border-warning-subtle">
+        <div class="card-header fw-semibold text-warning-emphasis bg-warning-subtle">
+          <%= t("locker.transfer.unassign_card_heading") %>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <p class="text-secondary small"><%= t("locker.transfer.unassign_card_hint_html") %></p>
+
+          <div class="mt-auto">
+            <%= button_to t("locker.transfer.unassign_submit"),
+                  transfer_admin_locker_path(@locker),
+                  method: :post,
+                  params: { company_id: "", name: @locker.physical_device.device_id },
+                  class: "btn btn-outline-warning w-100",
+                  data: { turbo_confirm: t("locker.transfer.unassign_confirm") } %>
           </div>
         </div>
       </div>
-
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label" for="company_id"><%= t("locker.transfer.new_company_label") %></label>
-          <%= select_tag :company_id,
-                options_from_collection_for_select(@companies, :id, :name),
-                include_blank: t("locker.transfer.unassigned_option"),
-                class: "form-select" %>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label" for="name"><%= t("locker.transfer.new_name_label") %></label>
-          <%= text_field_tag :name, @locker.name, class: "form-control", required: true %>
-          <small class="form-text text-secondary"><%= t("locker.transfer.new_name_hint") %></small>
-        </div>
-      </div>
-
-      <div class="d-flex gap-2">
-        <%= submit_tag t("locker.transfer.submit"), class: "btn btn-primary" %>
-        <%= link_to t("locker.transfer.cancel"), admin_locker_path(@locker), class: "btn btn-outline-secondary" %>
-      </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>

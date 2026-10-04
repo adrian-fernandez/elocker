@@ -2,7 +2,9 @@ module Companies
   # Top-level orchestrator: composes base scope → filter → order → pagination.
   # See `Lockers::Fetcher` for the architectural pattern used across entities.
   class Fetcher < ApplicationService
-    DEFAULT_INCLUDES = [:users, :teams, :lockers].freeze
+    # No includes needed: the admin dashboard reads counter_cache columns
+    # directly on `companies` (users_count / teams_count / lockers_count).
+    DEFAULT_INCLUDES = [].freeze
     DEFAULT_ORDER = { platform_owner: :desc, name: :asc }.freeze
 
     def initialize(

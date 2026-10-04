@@ -16,6 +16,29 @@ RSpec.describe "Admin locker transfer", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Transfer")
     end
+
+    it "excludes the current company from the target dropdown" do
+      dpd    = create(:company, name: "DPD")
+      locker = create(:locker, company: amazon)
+
+      get "/admin/lockers/#{locker.id}/transfer"
+
+      # Current owner must not be a target option (nothing to transfer
+      # when "new" == "current").
+      expect(response.body).not_to match(/<option value="#{amazon.id}">Amazon/)
+      expect(response.body).to     match(/<option value="#{dpd.id}">DPD/)
+    end
+
+    it "shows the Unassign card only for assigned lockers" do
+      assigned   = create(:locker, company: amazon)
+      unassigned = create(:locker, :unassigned)
+
+      get "/admin/lockers/#{assigned.id}/transfer"
+      expect(response.body).to include("Return to the unassigned pool")
+
+      get "/admin/lockers/#{unassigned.id}/transfer"
+      expect(response.body).not_to include("Return to the unassigned pool")
+    end
   end
 
   describe "POST /admin/lockers/:id/transfer" do

@@ -10,15 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
 
   create_table "companies", force: :cascade do |t|
     t.string "name", null: false
     t.boolean "platform_owner", default: false, null: false
+    t.integer "users_count", default: 0, null: false
+    t.integer "teams_count", default: 0, null: false
+    t.integer "lockers_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_companies_on_name"
+    t.index ["name"], name: "index_companies_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["platform_owner"], name: "index_companies_on_platform_owner", unique: true, where: "(platform_owner = true)"
   end
 
@@ -30,6 +36,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["company_id", "created_at"], name: "index_locker_actions_on_company_id_and_created_at"
+    t.index ["created_at"], name: "index_locker_actions_on_created_at"
     t.index ["locker_id", "created_at"], name: "index_locker_actions_on_locker_id_and_created_at"
     t.index ["locker_id"], name: "index_locker_actions_on_locker_id"
     t.index ["user_id", "created_at"], name: "index_locker_actions_on_user_id_and_created_at"
@@ -60,12 +67,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "status"], name: "index_lockers_on_company_id_and_status"
     t.index ["company_id"], name: "index_lockers_on_company_id"
+    t.index ["company_id"], name: "index_lockers_on_company_id_active", where: "(ended_at IS NULL)"
     t.index ["ended_at"], name: "index_lockers_on_ended_at"
     t.index ["id", "company_id"], name: "index_lockers_on_id_and_company_id", unique: true
     t.index ["last_status_changed_at"], name: "index_lockers_on_last_status_changed_at"
     t.index ["last_status_changed_by_id"], name: "index_lockers_on_last_status_changed_by_id"
+    t.index ["name"], name: "index_lockers_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["physical_device_id"], name: "index_lockers_on_physical_device_id"
     t.index ["physical_device_id"], name: "index_lockers_on_physical_device_id_active", unique: true, where: "(ended_at IS NULL)"
+    t.check_constraint "ended_at IS NULL OR ended_at > started_at", name: "lockers_ended_after_started"
   end
 
   create_table "physical_devices", force: :cascade do |t|
@@ -74,6 +84,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["device_id"], name: "index_physical_devices_on_device_id", unique: true
+    t.index ["device_id"], name: "index_physical_devices_on_device_id_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "teams", force: :cascade do |t|
@@ -84,6 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
     t.index ["company_id", "name"], name: "index_teams_on_company_id_and_name", unique: true
     t.index ["company_id"], name: "index_teams_on_company_id"
     t.index ["id", "company_id"], name: "index_teams_on_id_and_company_id", unique: true
+    t.index ["name"], name: "index_teams_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "teams_users", id: false, force: :cascade do |t|
@@ -103,6 +115,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_151657) do
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["id", "company_id"], name: "index_users_on_id_and_company_id", unique: true
+    t.index ["name"], name: "index_users_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   add_foreign_key "locker_actions", "companies"
