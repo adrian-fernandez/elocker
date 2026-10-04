@@ -9,7 +9,7 @@ RSpec.describe "Activity", type: :request do
       create(:locker_action, :opened, locker: amazon_locker, company_id: amazon_locker.company_id)
       create(:locker_action, :opened, locker: dpd_locker,    company_id: dpd_locker.company_id)
 
-      patch "/session", params: { user_id: platform.id }
+      patch "/session", params: {user_id: platform.id}
       get "/activity"
 
       expect(response).to have_http_status(:ok)
@@ -31,7 +31,7 @@ RSpec.describe "Activity", type: :request do
       create(:locker_action, :opened, locker: visible_locker, company_id: amazon.id)
       create(:locker_action, :opened, locker: hidden_locker,  company_id: amazon.id)
 
-      patch "/session", params: { user_id: user.id }
+      patch "/session", params: {user_id: user.id}
       get "/activity"
 
       expect(response.body).to include(visible_locker.name)

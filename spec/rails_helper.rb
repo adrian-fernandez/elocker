@@ -1,45 +1,23 @@
-# This file is copied to spec/ when you run 'rails generate rspec:install'
-require 'spec_helper'
-# Force the test environment: the Docker dev container boots with
-# RAILS_ENV=development, which would make `||=` a no-op and point the suite at
-# the dev database. Hard-set it before Rails loads.
-ENV['RAILS_ENV'] = 'test'
-require_relative '../config/environment'
-# Prevent database truncation if the environment is production
+require "spec_helper"
+# The Docker dev container boots with RAILS_ENV=development; hard-set it
+# here before Rails loads so the suite always talks to the test DB.
+ENV["RAILS_ENV"] = "test"
+require_relative "../config/environment"
 abort("The Rails environment is running in production mode!") if Rails.env.production?
-# Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
-# that will avoid rails generators crashing because migrations haven't been run yet
-# return unless Rails.env.test?
-require 'rspec/rails'
-# Add additional requires below this line. Rails is not loaded until this point!
+require "rspec/rails"
+require "prosopite"
+require "capybara/rails"
+Rails.root.glob("spec/support/**/*.rb").sort.each { |f| require f }
 
-# Requires supporting ruby files with custom matchers and macros, etc, in
-# spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
-# run as spec files by default. This means that files in spec/support that end
-# in _spec.rb will both be required and run as specs, causing the specs to be
-# run twice. It is recommended that you do not name files matching this glob to
-# end with _spec.rb. You can configure this pattern with the --pattern
-# option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
-#
-# The following line is provided for convenience purposes. It has the downside
-# of increasing the boot-up time by auto-requiring all files in the support
-# directory. Alternatively, in the individual `*_spec.rb` files, manually
-# require only the support files necessary.
-#
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
-
-# Checks for pending migrations and applies them before tests are run.
-# If you are not using ActiveRecord, you can remove these lines.
 begin
   ActiveRecord::Migration.maintain_test_schema!
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
+
 RSpec.configure do |config|
-  # Disable rspec-rails' built-in transactional fixtures and apply our own
-  # around hook. That way every spec — not just those under spec/models/ —
-  # gets DB isolation, including spec/services/ which rspec-rails does not
-  # recognise as a Rails spec type.
+  # Our own around-each handles isolation across every spec type, including
+  # spec/services (which rspec-rails does not infer as a Rails spec).
   config.use_transactional_fixtures = false
 
   config.include FactoryBot::Syntax::Methods
@@ -52,29 +30,30 @@ RSpec.configure do |config|
     end
   end
 
-  # You can uncomment this line to turn off ActiveRecord support entirely.
-  # config.use_active_record = false
+  # Prosopite flags N+1s on request/system specs that render views. Models
+  # and services opt out — many of them intentionally measure DB queries
+  # without eager-loading to assert behaviour.
+  config.around(:each, type: :request) do |example|
+    Prosopite.scan
+    example.run
+  ensure
+    Prosopite.finish
+  end
 
-  # RSpec Rails uses metadata to mix in different behaviours to your tests,
-  # for example enabling you to call `get` and `post` in request specs. e.g.:
-  #
-  #     RSpec.describe UsersController, type: :request do
-  #       # ...
-  #     end
-  #
-  # The different available types are documented in the features, such as in
-  # https://rspec.info/features/7-1/rspec-rails
-  #
-  # You can also this infer these behaviours automatically by location, e.g.
-  # /spec/models would pull in the same behaviour as `type: :model` but this
-  # behaviour is considered legacy and will be removed in a future version.
-  #
-  # To enable this behaviour uncomment the line below.
-  # config.infer_spec_type_from_file_location!
+  config.around(:each, type: :system) do |example|
+    Prosopite.scan
+    example.run
+  ensure
+    Prosopite.finish
+  end
 
-  # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
 end
+
+Prosopite.rails_logger = true
+Prosopite.raise = true
+# Allow queries from within the fixtures/factories setup. Only scan the
+# `example.run` call itself.
 
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
@@ -83,5 +62,4 @@ Shoulda::Matchers.configure do |config|
   end
 end
 
-# Lets `.to not_change(...).and not_change(...)` express compound negations.
 RSpec::Matchers.define_negated_matcher :not_change, :change

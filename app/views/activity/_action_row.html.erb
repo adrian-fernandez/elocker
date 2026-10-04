@@ -1,0 +1,29 @@
+<%
+  actor_type_label =
+    if action.user.nil?
+      t("activity.actor_types.device")
+    elsif action.user.company.platform_owner?
+      t("activity.actor_types.platform")
+    else
+      t("activity.actor_types.tenant")
+    end
+%>
+<tr>
+  <td class="small text-secondary"><%= l(action.created_at, format: :long) %></td>
+  <% if show_locker %>
+    <td class="fw-semibold">
+      <% locker_href = admin ? admin_locker_path(action.locker) : locker_path(action.locker) %>
+      <%= link_to action.locker.name, locker_href, class: "text-decoration-none" %>
+    </td>
+  <% end %>
+  <td><%= locker_action_badge(action.action) %></td>
+  <td>
+    <% if action.user %>
+      <%= linked_user_name(action.user, linked: admin) %>
+      <div class="small text-secondary"><%= action.user.company.name %></div>
+    <% else %>
+      <span class="text-secondary fst-italic"><%= t("activity.actor.device") %></span>
+    <% end %>
+  </td>
+  <td class="small"><%= actor_type_label %></td>
+</tr>

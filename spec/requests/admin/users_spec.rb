@@ -5,7 +5,7 @@ RSpec.describe "Admin::Users", type: :request do
     it "renders the user detail page for a platform owner" do
       platform_user = create(:user, :platform_owner)
       target        = create(:user, name: "Alice Johnson")
-      patch "/session", params: { user_id: platform_user.id }
+      patch "/session", params: {user_id: platform_user.id}
 
       get "/admin/users/#{target.id}"
 
@@ -16,7 +16,7 @@ RSpec.describe "Admin::Users", type: :request do
     it "returns 403 Forbidden to tenants hitting the admin section" do
       tenant = create(:user)
       target = create(:user)
-      patch "/session", params: { user_id: tenant.id }
+      patch "/session", params: {user_id: tenant.id}
 
       get "/admin/users/#{target.id}"
 

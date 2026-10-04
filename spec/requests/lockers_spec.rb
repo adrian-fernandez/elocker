@@ -5,7 +5,7 @@ RSpec.describe "Lockers operations", type: :request do
   let(:locker)  { create(:locker, company: company, status: :closed) }
 
   def login_as(user)
-    patch "/session", params: { user_id: user.id }
+    patch "/session", params: {user_id: user.id}
   end
 
   describe "POST /lockers/:id/open" do
