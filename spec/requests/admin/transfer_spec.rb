@@ -5,7 +5,7 @@ RSpec.describe "Admin locker transfer", type: :request do
   let(:elocker)       { platform_user.company }
   let(:amazon)        { create(:company, name: "Amazon") }
 
-  before { patch "/session", params: { user_id: platform_user.id } }
+  before { patch "/session", params: {user_id: platform_user.id} }
 
   describe "GET /admin/lockers/:id/transfer" do
     it "renders the transfer form for the current contract" do
@@ -47,7 +47,7 @@ RSpec.describe "Admin locker transfer", type: :request do
       current = create(:locker, :unassigned, physical_device: device, name: "SPARE-X")
 
       post "/admin/lockers/#{current.id}/transfer",
-           params: { company_id: amazon.id, name: "Amazon X" }
+           params: {company_id: amazon.id, name: "Amazon X"}
 
       expect(response).to redirect_to(/\/admin\/lockers\/\d+/)
       new_locker = device.lockers.find_by(ended_at: nil)
@@ -61,7 +61,7 @@ RSpec.describe "Admin locker transfer", type: :request do
       locker = create(:locker, company: amazon, name: "A1")
 
       post "/admin/lockers/#{locker.id}/transfer",
-           params: { company_id: "", name: "A1-returned" }
+           params: {company_id: "", name: "A1-returned"}
 
       expect(response).to be_redirect
       new_locker = locker.physical_device.lockers.find_by(ended_at: nil)
@@ -72,7 +72,7 @@ RSpec.describe "Admin locker transfer", type: :request do
       locker = create(:locker, company: amazon)
 
       post "/admin/lockers/#{locker.id}/transfer",
-           params: { company_id: elocker.id, name: "ptfm" }
+           params: {company_id: elocker.id, name: "ptfm"}
 
       # The controller scopes `Company.where(platform_owner: false).find(...)`
       # so an attempt to point a locker at eLocker raises RecordNotFound,
@@ -84,7 +84,7 @@ RSpec.describe "Admin locker transfer", type: :request do
       locker = create(:locker, company: amazon, name: "A1")
 
       post "/admin/lockers/#{locker.id}/transfer",
-           params: { company_id: amazon.id, name: "A1" }
+           params: {company_id: amazon.id, name: "A1"}
 
       expect(response).to redirect_to(transfer_admin_locker_path(locker))
       follow_redirect!
@@ -93,10 +93,10 @@ RSpec.describe "Admin locker transfer", type: :request do
 
     it "returns 403 to tenants" do
       tenant = create(:user)
-      patch "/session", params: { user_id: tenant.id }
+      patch "/session", params: {user_id: tenant.id}
 
       locker = create(:locker, company: amazon)
-      post "/admin/lockers/#{locker.id}/transfer", params: { company_id: amazon.id, name: "x" }
+      post "/admin/lockers/#{locker.id}/transfer", params: {company_id: amazon.id, name: "x"}
 
       expect(response).to have_http_status(:forbidden)
     end

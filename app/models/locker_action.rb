@@ -3,7 +3,7 @@ class LockerAction < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :company, optional: true
 
-  REQUEST_ACTIONS  = %w[open_request close_request].freeze
+  REQUEST_ACTIONS = %w[open_request close_request].freeze
   RESPONSE_ACTIONS = %w[opened closed].freeze
 
   enum :action, {
@@ -13,16 +13,9 @@ class LockerAction < ApplicationRecord
     closed: 3
   }
 
-  # The composite FK (locker_id, company_id) → lockers skips its check when
-  # either side is NULL (MATCH SIMPLE). This validation closes the gap:
-  # whatever company_id we snapshot MUST match the locker's company at save
-  # time, so a tenant action can't be mis-attributed to another tenant.
   validate :company_matches_locker
-
-  # Request actions (open_request/close_request) are user-triggered → user
-  # must be present. Response actions (opened/closed) are device-reported
-  # → user must be nil. Enforces the event-log contract at the model.
   validate :user_matches_action_type
+  validate :user_belongs_to_company_or_is_platform_owner
 
   after_create_commit -> { broadcast_refresh_to "lockers" }
 
@@ -32,8 +25,7 @@ class LockerAction < ApplicationRecord
     return if locker.nil?
     return if company_id == locker.company_id
 
-    errors.add(:company_id,
-               "must match the locker's company (#{locker.company_id.inspect})")
+    errors.add(:company_id, "must match the locker's company")
   end
 
   def user_matches_action_type
@@ -42,5 +34,16 @@ class LockerAction < ApplicationRecord
     elsif RESPONSE_ACTIONS.include?(action) && user.present?
       errors.add(:user, "must be nil for #{action} (device response)")
     end
+  end
+
+  # Prevents a tenant from issuing actions on another tenant's locker even
+  # when the (locker_id, company_id) composite FK alone would allow it.
+  # Platform-owner users are allowed to act on any tenant's locker.
+  def user_belongs_to_company_or_is_platform_owner
+    return if user.nil? || company_id.nil?
+    return if user.company_id == company_id
+    return if Users::PlatformOwnerChecker.call(user:)
+
+    errors.add(:user, "must belong to the action's company or be a platform owner")
   end
 end

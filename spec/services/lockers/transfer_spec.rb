@@ -2,15 +2,16 @@ require "rails_helper"
 
 RSpec.describe Lockers::Transfer do
   describe ".call" do
-    let(:device)       { create(:physical_device) }
-    let(:amazon)       { create(:company, name: "Amazon") }
-    let(:dpd)          { create(:company, name: "DPD") }
+    let(:device) { create(:physical_device) }
+    let(:amazon) { create(:company, name: "Amazon") }
+    let(:dpd) { create(:company, name: "DPD") }
+    let(:platform) { create(:user, :platform_owner) }
 
     context "transferring an assigned locker to another company" do
       let!(:original) { create(:locker, physical_device: device, company: amazon, name: "A1") }
 
       it "closes the current contract and opens a new one" do
-        described_class.call(physical_device: device, company: dpd, name: "D7")
+        described_class.call(physical_device: device, company: dpd, name: "D7", by: platform)
 
         original.reload
         new_locker = device.lockers.find_by(ended_at: nil)
@@ -27,14 +28,14 @@ RSpec.describe Lockers::Transfer do
         create(:locker_team_permission, locker: original, team: team, company_id: amazon.id)
 
         expect {
-          described_class.call(physical_device: device, company: dpd, name: "D7")
+          described_class.call(physical_device: device, company: dpd, name: "D7", by: platform)
         }.to change { original.reload.locker_team_permissions.count }.from(1).to(0)
       end
 
       it "preserves historical actions on the outgoing contract" do
         action = create(:locker_action, locker: original, company_id: amazon.id)
 
-        described_class.call(physical_device: device, company: dpd, name: "D7")
+        described_class.call(physical_device: device, company: dpd, name: "D7", by: platform)
 
         expect(action.reload).to be_present
         expect(action.company_id).to eq(amazon.id)
@@ -46,11 +47,41 @@ RSpec.describe Lockers::Transfer do
       let!(:original) { create(:locker, physical_device: device, company: amazon, name: "A1") }
 
       it "creates a new unassigned contract" do
-        described_class.call(physical_device: device, company: nil, name: "A1-returned")
+        described_class.call(physical_device: device, company: nil, name: "A1-returned", by: platform)
 
         new_locker = device.lockers.find_by(ended_at: nil)
         expect(new_locker).to be_unassigned
         expect(new_locker.name).to eq("A1-returned")
+      end
+    end
+
+    context "authorization" do
+      let!(:original) { create(:locker, physical_device: device, company: amazon, name: "A1") }
+
+      it "raises NotAllowedError for a non-platform-owner user" do
+        tenant = create(:user)
+
+        expect {
+          described_class.call(physical_device: device, company: dpd, name: "D7", by: tenant)
+        }.to raise_error(described_class::NotAllowedError)
+      end
+
+      it "raises NotAllowedError when by: is nil" do
+        expect {
+          described_class.call(physical_device: device, company: dpd, name: "D7", by: nil)
+        }.to raise_error(described_class::NotAllowedError)
+      end
+    end
+
+    context "target company" do
+      let!(:original) { create(:locker, physical_device: device, company: amazon, name: "A1") }
+
+      it "rejects the platform-owner company" do
+        elocker = platform.company
+
+        expect {
+          described_class.call(physical_device: device, company: elocker, name: "X", by: platform)
+        }.to raise_error(described_class::InvalidTransferError, /platform-owner/)
       end
     end
 
@@ -59,15 +90,17 @@ RSpec.describe Lockers::Transfer do
 
       it "raises InvalidTransferError when owner + name are unchanged" do
         expect {
-          described_class.call(physical_device: device, company: amazon, name: "A1")
+          described_class.call(physical_device: device, company: amazon, name: "A1", by: platform)
         }.to raise_error(described_class::InvalidTransferError, /already owned/)
       end
     end
 
     context "validation" do
       it "requires a name" do
+        create(:locker, physical_device: device, company: amazon, name: "A1")
+
         expect {
-          described_class.call(physical_device: device, company: amazon, name: "")
+          described_class.call(physical_device: device, company: amazon, name: "", by: platform)
         }.to raise_error(described_class::InvalidTransferError, /Name/)
       end
     end

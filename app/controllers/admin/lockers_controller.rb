@@ -28,9 +28,6 @@ class Admin::LockersController < Admin::BaseController
 
   def transfer_form
     @locker = scope.includes(:company, :physical_device).find(params[:id])
-    # Only valid tenants, and never the current owner (nothing to transfer
-    # if "new" == "current"). For unassigned lockers the current owner is
-    # nil, so the full tenant list stays.
     @companies = Company
       .where(platform_owner: false)
       .where.not(id: @locker.company_id)
@@ -39,17 +36,20 @@ class Admin::LockersController < Admin::BaseController
 
   def transfer
     locker = scope.find(params[:id])
-    attrs  = transfer_params
+    attrs = transfer_params
     new_locker = ::Lockers::Transfer.call(
       physical_device: locker.physical_device,
-      company:         resolve_target_company(attrs[:company_id]),
-      name:            attrs[:name]
+      company: resolve_target_company(attrs[:company_id]),
+      name: attrs[:name],
+      by: current_user
     )
 
     redirect_to admin_locker_path(new_locker),
                 notice: t("flash.locker_transferred")
   rescue ::Lockers::Transfer::InvalidTransferError => e
     redirect_to transfer_admin_locker_path(params[:id]), alert: e.message
+  rescue ::Lockers::Transfer::NotAllowedError
+    render_forbidden!(t("errors.forbidden.locker_not_allowed"))
   end
 
   private
@@ -62,10 +62,8 @@ class Admin::LockersController < Admin::BaseController
     params.permit(:company_id, :name)
   end
 
-  # Translates the submitted company_id into an actual Company or nil
-  # (unassigned). Rejects the platform-owner company so a transfer can't
-  # drag a locker into eLocker's own "tenancy" — the dropdown already
-  # hides it, this is the server-side belt-and-suspenders.
+  # The dropdown already hides the platform-owner company; this scoping
+  # is the server-side belt-and-suspenders for direct POSTs.
   def resolve_target_company(raw_id)
     return nil if raw_id.blank?
 

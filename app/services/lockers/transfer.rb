@@ -2,27 +2,27 @@ module Lockers
   # Transfers a physical device's ownership to a new company (or to the
   # unassigned pool). Immutable-contract model: the current Locker row is
   # closed by setting `ended_at`, and a brand-new Locker row is created for
-  # the new owner. All historical audit (actions, previous permissions) stays
-  # pinned to the archived Locker row — never rewritten.
+  # the new owner. All historical audit (actions, previous permissions)
+  # stays pinned to the archived Locker row — never rewritten.
   #
   # company: nil puts the device back in the unassigned pool (platform-only).
-  #
-  # Authorization lives in the controller (`require_platform_owner!`).
-  # Keeping the policy decision there avoids threading a user/token through
-  # every call site, mirroring how `Lockers::Operators::*` relies on the
-  # controller's `scope.find` for the first visibility check.
   class Transfer < ApplicationService
     class InvalidTransferError < StandardError; end
+    class NotAllowedError < StandardError; end
 
-    def initialize(physical_device:, company:, name:, at: Time.current)
+    def initialize(physical_device:, company:, name:, by:, at: Time.current, checker: Users::PlatformOwnerChecker)
       @physical_device = physical_device
       @company = company
       @name = name.to_s.squish
+      @by = by
       @at = at
+      @checker = checker
     end
 
     # Returns the newly-opened Locker contract.
     def call
+      authorize!
+      validate_target_company!
       validate_blank_name!
 
       ActiveRecord::Base.transaction(requires_new: true) do
@@ -41,6 +41,19 @@ module Lockers
 
     private
 
+    def authorize!
+      return if @checker.call(user: @by)
+
+      raise NotAllowedError, "User ##{@by&.id} is not allowed to transfer devices"
+    end
+
+    def validate_target_company!
+      return if @company.nil?
+      return unless @company.platform_owner
+
+      raise InvalidTransferError, "Cannot transfer to the platform-owner company"
+    end
+
     def validate_blank_name!
       return if @name.present?
 
@@ -58,10 +71,6 @@ module Lockers
     end
 
     def close_current!(current)
-      # Permissions belong to the outgoing contract and must not survive
-      # into the new tenant's world. Hard-delete via a scoped query so
-      # the NOT NULL on locker_id is respected (the default `delete_all`
-      # on the has_many would try to NULL the FK).
       LockerTeamPermission.where(locker_id: current.id).delete_all
       current.update!(ended_at: @at)
     end
