@@ -40,11 +40,7 @@
       <dt class="col-sm-5 text-secondary"><%= t("locker.details.last_status_changed_by") %></dt>
       <dd class="col-sm-7">
         <% if locker.last_status_changed_by %>
-          <% if admin %>
-            <%= link_to locker.last_status_changed_by.name, admin_user_path(locker.last_status_changed_by), class: "text-decoration-none" %>
-          <% else %>
-            <%= locker.last_status_changed_by.name %>
-          <% end %>
+          <%= linked_user_name(locker.last_status_changed_by, linked: admin) %>
         <% else %>
           <span class="text-secondary"><%= t("locker.details.changed_by_device") %></span>
         <% end %>
