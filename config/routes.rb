@@ -13,6 +13,8 @@ Rails.application.routes.draw do
       member do
         post :open
         post :close
+        post :force_open
+        post :force_close
         get  :transfer, action: :transfer_form
         post :transfer
       end
@@ -23,6 +25,8 @@ Rails.application.routes.draw do
     member do
       post :open
       post :close
+      post :force_open
+      post :force_close
     end
   end
 

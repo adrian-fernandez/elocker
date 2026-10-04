@@ -1,11 +1,13 @@
 <% content_for :title, @locker.name %>
 
 <%= render "lockers/detail",
-      locker:     @locker,
-      back_path:  lockers_path,
-      open_path:  open_locker_path(@locker),
+      locker: @locker,
+      back_path: lockers_path,
+      open_path: open_locker_path(@locker),
       close_path: close_locker_path(@locker),
-      admin:      false %>
+      force_open_path: force_open_locker_path(@locker),
+      force_close_path: force_close_locker_path(@locker),
+      admin: false %>
 
 <section class="mt-4">
   <h2 class="h5 mb-3"><%= t("activity.heading") %></h2>
@@ -13,11 +15,11 @@
 
   <%= render "activity/table",
         locker_actions: @locker_actions,
-        lockers:        nil,
-        companies:      @companies,
-        users:          @users,
-        teams:          @teams,
-        filter_url:     locker_path(@locker),
-        admin:          false,
-        locker_scope:   @locker %>
+        lockers: nil,
+        companies: @companies,
+        users: @users,
+        teams: @teams,
+        filter_url: locker_path(@locker),
+        admin: false,
+        locker_scope: @locker %>
 </section>

@@ -1,26 +1,65 @@
 <%
   # Locals:
-  # - locker:        Locker
-  # - open_path:     String — POST target for the Open operation
-  # - close_path:    String — POST target for the Close operation
-  # - transfer_path: String or nil — admin-only link to the transfer form
+  # - locker, open_path, close_path, transfer_path
+  # - force_open_path, force_close_path
+  #
+  # The split button exposes the "normal" action as the primary button and
+  # tucks the *inverse* Force action behind a dropdown chevron. This lets
+  # admins re-sync the app's state with a device that drifted out of band
+  # (missed response, flaky network) without hiding the dangerous option
+  # as the main CTA.
+  if locker.closed?
+    main_label = t("locker.actions.open")
+    main_path = open_path
+    main_class = "btn btn-success"
+    main_confirm = t("locker.actions.confirm_open")
+    force_label = t("locker.actions.force_close")
+    force_path = force_close_path
+    force_confirm = t("locker.actions.confirm_force_close")
+  else
+    main_label = t("locker.actions.close")
+    main_path = close_path
+    main_class = "btn btn-outline-secondary"
+    main_confirm = t("locker.actions.confirm_close")
+    force_label = t("locker.actions.force_open")
+    force_path = force_open_path
+    force_confirm = t("locker.actions.confirm_force_open")
+  end
 %>
 <div class="card">
   <div class="card-header fw-semibold"><%= t("locker.actions.heading") %></div>
   <div class="card-body d-grid gap-2">
-    <% if locker.closed? %>
-      <%= button_to t("locker.actions.open"),
-            open_path,
+    <div class="btn-group w-100" role="group">
+      <%= button_to main_label,
+            main_path,
             method: :post,
-            class: "btn btn-success w-100",
-            data: { turbo_confirm: t("locker.actions.confirm_open") } %>
-    <% else %>
-      <%= button_to t("locker.actions.close"),
-            close_path,
-            method: :post,
-            class: "btn btn-outline-secondary w-100",
-            data: { turbo_confirm: t("locker.actions.confirm_close") } %>
-    <% end %>
+            class: "#{main_class} flex-grow-1",
+            form: {class: "flex-grow-1 m-0"},
+            data: {turbo_confirm: main_confirm} %>
+
+      <button type="button"
+              class="<%= main_class %> dropdown-toggle dropdown-toggle-split flex-grow-0"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-label="<%= t('locker.actions.force_dropdown_aria') %>">
+        <span class="visually-hidden"><%= t("locker.actions.force_dropdown_aria") %></span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <%= button_to force_label,
+                force_path,
+                method: :post,
+                class: "dropdown-item",
+                form: {class: "m-0"},
+                data: {turbo_confirm: force_confirm} %>
+        </li>
+        <li>
+          <div class="dropdown-item-text small text-secondary" style="max-width: 20rem;">
+            <%= t("locker.actions.force_hint") %>
+          </div>
+        </li>
+      </ul>
+    </div>
 
     <% if transfer_path %>
       <%= link_to t("locker.actions.transfer"),

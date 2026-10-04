@@ -27,12 +27,21 @@ module LockerOperations
     operate_with(::Lockers::Operators::Close)
   end
 
+  def force_open
+    operate_with(::Lockers::Operators::Open, force: true)
+  end
+
+  def force_close
+    operate_with(::Lockers::Operators::Close, force: true)
+  end
+
   private
 
-  def operate_with(operator)
+  def operate_with(operator, force: false)
     locker = scope.find(params[:id])
-    operator.call(locker:, user: current_user)
-    redirect_to locker_route(locker), notice: t("flash.locker_updated", status: locker.reload.status)
+    operator.call(locker:, user: current_user, force:)
+    key = force ? "flash.locker_forced" : "flash.locker_updated"
+    redirect_to locker_route(locker), notice: t(key, status: locker.reload.status)
   end
 
   def scope

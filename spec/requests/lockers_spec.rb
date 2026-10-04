@@ -40,6 +40,18 @@ RSpec.describe "Lockers operations", type: :request do
     end
   end
 
+  describe "POST /lockers/:id/force_close (force path)" do
+    it "succeeds even when the locker's app state is already closed" do
+      support = create(:user, :platform_owner)
+      login_as(support)
+
+      post "/lockers/#{locker.id}/force_close"
+
+      expect(response).to redirect_to(locker_path(locker))
+      expect(flash[:notice]).to match(/Device command sent/)
+    end
+  end
+
   describe "POST /admin/lockers/:id/open" do
     it "returns 403 Forbidden to tenants hitting admin operations" do
       tenant = create(:user)

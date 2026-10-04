@@ -99,6 +99,26 @@ RSpec.describe Lockers::Operators::Open do
     end
   end
 
+  describe "force: true" do
+    it "bypasses state validation when the locker is already open" do
+      locker.update!(status: :open)
+      support = create(:user, :platform_owner)
+
+      expect {
+        described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:), force: true)
+      }.not_to raise_error
+    end
+
+    it "still records the request + response pair" do
+      locker.update!(status: :open)
+      support = create(:user, :platform_owner)
+
+      expect {
+        described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:), force: true)
+      }.to change(LockerAction, :count).by(2)
+    end
+  end
+
   describe "row-level lock" do
     it "acquires a SELECT FOR UPDATE on the locker before mutating state" do
       support = create(:user, :platform_owner)

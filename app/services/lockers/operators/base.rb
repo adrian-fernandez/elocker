@@ -10,11 +10,16 @@ module Lockers
       class InvalidStateError < StandardError; end
       class DeviceError < StandardError; end
 
-      def initialize(locker:, user:, api: nil, visibility: Lockers::VisibleTo)
+      # force: true dispatches the command even if the locker's app-side
+      # state already matches the target. Used to re-sync when the DB is
+      # out of step with the physical device (missed response, network
+      # glitch, etc.).
+      def initialize(locker:, user:, api: nil, visibility: Lockers::VisibleTo, force: false)
         @locker = locker
         @user = user
         @api = api || Lockers::Api.for(locker:)
         @visibility = visibility
+        @force = force
       end
 
       def call
@@ -51,6 +56,7 @@ module Lockers
       end
 
       def validate_state!
+        return if @force
         return if initial_state_valid?
 
         raise InvalidStateError, "Locker is already #{@locker.status}"
