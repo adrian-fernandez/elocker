@@ -5,7 +5,7 @@ RSpec.describe Sessions::ResolveCurrentUser do
     context "with a valid user id in the session" do
       it "returns that user" do
         user = create(:user)
-        session = { user_id: user.id }
+        session = {user_id: user.id}
 
         expect(described_class.call(session:)).to eq(user)
       end
@@ -27,7 +27,7 @@ RSpec.describe Sessions::ResolveCurrentUser do
     context "with a stale user id (user deleted)" do
       it "falls back to the first user" do
         existing = create(:user)
-        session = { user_id: 0 }
+        session = {user_id: 0}
 
         result = described_class.call(session:)
 

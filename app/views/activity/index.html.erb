@@ -7,7 +7,7 @@
     <h1 class="h3 mb-0"><%= t("activity.heading") %></h1>
     <small class="text-secondary"><%= t("activity.subtitle_global") %></small>
   </div>
-  <span class="badge text-bg-light"><%= t("activity.total", count: @locker_actions.total) %></span>
+  <span class="badge text-bg-light"><%= t("activity.total", count: @locker_actions.length) %></span>
 </div>
 
 <%= render "activity/table",

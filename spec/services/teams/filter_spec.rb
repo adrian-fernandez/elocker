@@ -8,7 +8,7 @@ RSpec.describe Teams::Filter do
       warehouse = create(:team, name: "Warehouse")
       create(:team, name: "Drivers")
 
-      filter = described_class.new(scope: scope, params: { name: "ware" })
+      filter = described_class.new(scope: scope, params: {name: "ware"})
       expect(filter.by_name(scope)).to contain_exactly(warehouse)
     end
   end
@@ -19,7 +19,7 @@ RSpec.describe Teams::Filter do
       amazon_team = create(:team, company: amazon)
       create(:team) # another company
 
-      filter = described_class.new(scope: scope, params: { company_id: amazon.id })
+      filter = described_class.new(scope: scope, params: {company_id: amazon.id})
       expect(filter.by_company(scope)).to contain_exactly(amazon_team)
     end
   end
@@ -33,7 +33,7 @@ RSpec.describe Teams::Filter do
 
       lonely_team = create(:team, company: company)
 
-      filter = described_class.new(scope: scope, params: { members: "alice" })
+      filter = described_class.new(scope: scope, params: {members: "alice"})
       result = filter.by_member_name(scope)
 
       expect(result).to include(warehouse)
@@ -50,7 +50,7 @@ RSpec.describe Teams::Filter do
 
       lonely_team = create(:team, company: company)
 
-      filter = described_class.new(scope: scope, params: { lockers: "A1" })
+      filter = described_class.new(scope: scope, params: {lockers: "A1"})
       result = filter.by_locker_name(scope)
 
       expect(result).to include(team)

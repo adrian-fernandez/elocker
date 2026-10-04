@@ -13,7 +13,7 @@ RSpec.describe Sessions::SwitchUser do
     end
 
     it "overwrites a previous session value" do
-      session = { user_id: 999 }
+      session = {user_id: 999}
       user = create(:user)
 
       described_class.call(user_id: user.id, session: session)

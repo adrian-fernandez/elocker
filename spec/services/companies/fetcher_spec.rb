@@ -7,7 +7,7 @@ RSpec.describe Companies::Fetcher do
       _amazon = create(:company, name: "Amazon")
       _dpd    = create(:company, name: "DPD")
 
-      result = described_class.call(params: { type: "platform" })
+      result = described_class.call(params: {type: "platform"})
 
       expect(result).to be_a(Pagination)
       expect(result.records).to contain_exactly(elocker)
@@ -25,7 +25,7 @@ RSpec.describe Companies::Fetcher do
     it "paginates" do
       7.times { |i| create(:company, name: "Co #{i}") }
 
-      result = described_class.call(params: { per_page: 3, page: 2 })
+      result = described_class.call(params: {per_page: 3, page: 2})
       expect(result.records.size).to eq(3)
     end
   end

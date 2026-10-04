@@ -10,7 +10,7 @@ RSpec.describe Lockers::Fetcher do
     end
 
     it "returns a Pagination with the filtered + ordered records" do
-      result = described_class.call(user: user, params: { status: "open" })
+      result = described_class.call(user: user, params: {status: "open"})
 
       expect(result).to be_a(Pagination)
       expect(result.records.map(&:name)).to eq(["A1"])
@@ -26,7 +26,7 @@ RSpec.describe Lockers::Fetcher do
     it "applies pagination from params" do
       5.times { |i| create(:locker, name: "L#{i}", status: :open) }
 
-      result = described_class.call(user: user, params: { per_page: 2, page: 1 })
+      result = described_class.call(user: user, params: {per_page: 2, page: 1})
       expect(result.per_page).to eq(2)
       expect(result.records.size).to eq(2)
     end
@@ -43,12 +43,12 @@ RSpec.describe Lockers::Fetcher do
       pagination_obj = instance_double("Pagination")
 
       allow(visibility).to receive(:call).with(user: user).and_return(base_scope)
-      allow(filter).to receive(:call).with(scope: base_scope, params: { x: 1 }).and_return(filtered_scope)
+      allow(filter).to receive(:call).with(scope: base_scope, params: {x: 1}).and_return(filtered_scope)
       allow(paginator).to receive(:from_params) { |scope, _params| pagination_obj }
 
       result = described_class.call(
         user: user,
-        params: { x: 1 },
+        params: {x: 1},
         visibility: visibility,
         filter: filter,
         paginator: paginator

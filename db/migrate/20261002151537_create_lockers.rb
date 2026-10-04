@@ -30,7 +30,7 @@ class CreateLockers < ActiveRecord::Migration[8.1]
 
       t.datetime :last_status_changed_at
       t.references :last_status_changed_by,
-                   foreign_key: { to_table: :users },
+                   foreign_key: {to_table: :users},
                    null: true
 
       t.timestamps

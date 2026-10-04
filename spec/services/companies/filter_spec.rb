@@ -8,7 +8,7 @@ RSpec.describe Companies::Filter do
       amazon = create(:company, name: "Amazon")
       create(:company, name: "DPD")
 
-      filter = described_class.new(scope: scope, params: { name: "amaz" })
+      filter = described_class.new(scope: scope, params: {name: "amaz"})
       expect(filter.by_name(scope)).to contain_exactly(amazon)
     end
   end
@@ -18,17 +18,17 @@ RSpec.describe Companies::Filter do
     let!(:amazon)  { create(:company) }
 
     it "returns platform companies on 'platform'" do
-      filter = described_class.new(scope: scope, params: { type: "platform" })
+      filter = described_class.new(scope: scope, params: {type: "platform"})
       expect(filter.by_type(scope)).to contain_exactly(elocker)
     end
 
     it "returns tenants on 'tenant'" do
-      filter = described_class.new(scope: scope, params: { type: "tenant" })
+      filter = described_class.new(scope: scope, params: {type: "tenant"})
       expect(filter.by_type(scope)).to contain_exactly(amazon)
     end
 
     it "ignores unknown values" do
-      filter = described_class.new(scope: scope, params: { type: "bogus" })
+      filter = described_class.new(scope: scope, params: {type: "bogus"})
       expect(filter.by_type(scope).count).to eq(2)
     end
   end

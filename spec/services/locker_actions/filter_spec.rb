@@ -10,7 +10,7 @@ RSpec.describe LockerActions::Filter do
       a      = create(:locker_action, locker: create(:locker, company: amazon), company_id: amazon.id)
       _b     = create(:locker_action, locker: create(:locker, company: dpd),    company_id: dpd.id)
 
-      result = described_class.new(scope: scope, params: { company_id: amazon.id }).by_company(scope)
+      result = described_class.new(scope: scope, params: {company_id: amazon.id}).by_company(scope)
       expect(result).to contain_exactly(a)
     end
   end
@@ -21,7 +21,7 @@ RSpec.describe LockerActions::Filter do
       a = create(:locker_action, locker: locker, company_id: locker.company_id)
       _b = create(:locker_action)
 
-      result = described_class.new(scope: scope, params: { locker_id: locker.id }).by_locker(scope)
+      result = described_class.new(scope: scope, params: {locker_id: locker.id}).by_locker(scope)
       expect(result).to contain_exactly(a)
     end
   end
@@ -32,7 +32,7 @@ RSpec.describe LockerActions::Filter do
       a = create(:locker_action, user: user, locker: create(:locker, company: user.company), company_id: user.company_id)
       _b = create(:locker_action)
 
-      result = described_class.new(scope: scope, params: { user_id: user.id }).by_user(scope)
+      result = described_class.new(scope: scope, params: {user_id: user.id}).by_user(scope)
       expect(result).to contain_exactly(a)
     end
   end
@@ -49,7 +49,7 @@ RSpec.describe LockerActions::Filter do
       _outsider  = create(:locker_action, user: create(:user, company: company), locker: locker, company_id: company.id)
       _device    = create(:locker_action, :opened, locker: locker, company_id: company.id)
 
-      result = described_class.new(scope: scope, params: { team_id: team.id }).by_team(scope)
+      result = described_class.new(scope: scope, params: {team_id: team.id}).by_team(scope)
       expect(result).to contain_exactly(in_team)
     end
   end
@@ -60,7 +60,7 @@ RSpec.describe LockerActions::Filter do
       opened = create(:locker_action, :opened, locker: locker, company_id: locker.company_id)
       _req   = create(:locker_action, :open_request, locker: locker, company_id: locker.company_id)
 
-      result = described_class.new(scope: scope, params: { action_type: "opened" }).by_action(scope)
+      result = described_class.new(scope: scope, params: {action_type: "opened"}).by_action(scope)
       expect(result).to contain_exactly(opened)
     end
 
@@ -68,7 +68,7 @@ RSpec.describe LockerActions::Filter do
       locker = create(:locker)
       a = create(:locker_action, locker: locker, company_id: locker.company_id)
 
-      result = described_class.new(scope: scope, params: { action_type: "bogus" }).by_action(scope)
+      result = described_class.new(scope: scope, params: {action_type: "bogus"}).by_action(scope)
       expect(result).to include(a)
     end
   end
@@ -83,17 +83,17 @@ RSpec.describe LockerActions::Filter do
     let!(:by_device)   { create(:locker_action, :opened,              locker: locker, company_id: locker.company_id) }
 
     it "narrows to platform-owner actions" do
-      result = described_class.new(scope: scope, params: { actor_type: "platform" }).by_actor_type(scope)
+      result = described_class.new(scope: scope, params: {actor_type: "platform"}).by_actor_type(scope)
       expect(result).to contain_exactly(by_platform)
     end
 
     it "narrows to tenant-employee actions" do
-      result = described_class.new(scope: scope, params: { actor_type: "tenant" }).by_actor_type(scope)
+      result = described_class.new(scope: scope, params: {actor_type: "tenant"}).by_actor_type(scope)
       expect(result).to contain_exactly(by_tenant)
     end
 
     it "narrows to device-reported actions" do
-      result = described_class.new(scope: scope, params: { actor_type: "device" }).by_actor_type(scope)
+      result = described_class.new(scope: scope, params: {actor_type: "device"}).by_actor_type(scope)
       expect(result).to contain_exactly(by_device)
     end
   end
@@ -105,18 +105,18 @@ RSpec.describe LockerActions::Filter do
 
     it "by_date_from filters created_at >= from (beginning of day)" do
       from = 2.days.ago.to_date.to_s
-      result = described_class.new(scope: scope, params: { from: from }).by_date_from(scope)
+      result = described_class.new(scope: scope, params: {from: from}).by_date_from(scope)
       expect(result).to contain_exactly(recent)
     end
 
     it "by_date_to filters created_at <= to (end of day)" do
       to = 5.days.ago.to_date.to_s
-      result = described_class.new(scope: scope, params: { to: to }).by_date_to(scope)
+      result = described_class.new(scope: scope, params: {to: to}).by_date_to(scope)
       expect(result).to contain_exactly(old)
     end
 
     it "ignores unparseable dates" do
-      result = described_class.new(scope: scope, params: { from: "not-a-date" }).by_date_from(scope)
+      result = described_class.new(scope: scope, params: {from: "not-a-date"}).by_date_from(scope)
       expect(result.count).to eq(2)
     end
   end

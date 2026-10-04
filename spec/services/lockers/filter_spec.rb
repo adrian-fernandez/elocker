@@ -10,7 +10,7 @@ RSpec.describe Lockers::Filter do
     end
 
     it "filters by ILIKE %name%" do
-      filter = described_class.new(scope: scope, params: { name: "amazon" })
+      filter = described_class.new(scope: scope, params: {name: "amazon"})
       expect(filter.by_name(scope).map(&:name)).to all(include("Amazon"))
     end
 
@@ -21,7 +21,7 @@ RSpec.describe Lockers::Filter do
 
     it "escapes LIKE wildcards from user input" do
       create(:locker, name: "Amazon_Locker")
-      filter = described_class.new(scope: scope, params: { name: "Amazon_" })
+      filter = described_class.new(scope: scope, params: {name: "Amazon_"})
       expect(filter.by_name(scope).map(&:name)).to eq(["Amazon_Locker"])
     end
   end
@@ -33,7 +33,7 @@ RSpec.describe Lockers::Filter do
     end
 
     it "filters by ILIKE %device_id%" do
-      filter = described_class.new(scope: scope, params: { device_id: "amz" })
+      filter = described_class.new(scope: scope, params: {device_id: "amz"})
       expect(filter.by_device_id(scope).map(&:device_id)).to eq(["AMZ-001"])
     end
   end
@@ -45,7 +45,7 @@ RSpec.describe Lockers::Filter do
       a_locker = create(:locker, company: amazon)
       create(:locker, company: dpd)
 
-      filter = described_class.new(scope: scope, params: { company_id: amazon.id })
+      filter = described_class.new(scope: scope, params: {company_id: amazon.id})
       expect(filter.by_company(scope)).to contain_exactly(a_locker)
     end
   end
@@ -57,17 +57,17 @@ RSpec.describe Lockers::Filter do
     end
 
     it "accepts 'open'" do
-      filter = described_class.new(scope: scope, params: { status: "open" })
+      filter = described_class.new(scope: scope, params: {status: "open"})
       expect(filter.by_status(scope).map(&:status)).to eq(["open"])
     end
 
     it "accepts 'closed'" do
-      filter = described_class.new(scope: scope, params: { status: "closed" })
+      filter = described_class.new(scope: scope, params: {status: "closed"})
       expect(filter.by_status(scope).map(&:status)).to eq(["closed"])
     end
 
     it "ignores invalid values" do
-      filter = described_class.new(scope: scope, params: { status: "bogus" })
+      filter = described_class.new(scope: scope, params: {status: "bogus"})
       expect(filter.by_status(scope).count).to eq(2)
     end
   end
@@ -80,7 +80,7 @@ RSpec.describe Lockers::Filter do
       create(:locker_team_permission, locker: locker, team: team, company_id: company.id)
       create(:locker, company: company) # unrelated
 
-      filter = described_class.new(scope: scope, params: { team_id: team.id })
+      filter = described_class.new(scope: scope, params: {team_id: team.id})
       expect(filter.by_team(scope)).to contain_exactly(locker)
     end
   end

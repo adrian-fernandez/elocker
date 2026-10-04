@@ -8,7 +8,7 @@ RSpec.describe Users::Filter do
       alice = create(:user, name: "Alice Johnson")
       create(:user, name: "Bob Smith")
 
-      filter = described_class.new(scope: scope, params: { name: "alice" })
+      filter = described_class.new(scope: scope, params: {name: "alice"})
       expect(filter.by_name(scope)).to contain_exactly(alice)
     end
   end
@@ -19,7 +19,7 @@ RSpec.describe Users::Filter do
       alice  = create(:user, company: amazon)
       create(:user)
 
-      filter = described_class.new(scope: scope, params: { company_id: amazon.id })
+      filter = described_class.new(scope: scope, params: {company_id: amazon.id})
       expect(filter.by_company(scope)).to contain_exactly(alice)
     end
   end
@@ -32,7 +32,7 @@ RSpec.describe Users::Filter do
       create(:teams_user, user: alice, team: team, company_id: company.id)
       create(:user, company: company)
 
-      filter = described_class.new(scope: scope, params: { team_id: team.id })
+      filter = described_class.new(scope: scope, params: {team_id: team.id})
       expect(filter.by_team(scope)).to contain_exactly(alice)
     end
   end

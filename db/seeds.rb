@@ -4,7 +4,6 @@
 # the DB half-cleaned / half-populated. Idempotent on re-run via the
 # delete_all cascade at the top.
 ActiveRecord::Base.transaction do
-
 puts "Cleaning database..."
 
 LockerAction.delete_all
@@ -60,13 +59,13 @@ dpd_operations = Team.create!(name: "Operations", company: dpd)
 puts "Assigning users to teams..."
 
 TeamsUser.insert_all!([
-  { user_id: alice.id, team_id: amazon_warehouse.id,  company_id: amazon.id },
-  { user_id: bob.id,   team_id: amazon_warehouse.id,  company_id: amazon.id },
-  { user_id: bob.id,   team_id: amazon_operations.id, company_id: amazon.id },
-  { user_id: carol.id, team_id: amazon_managers.id,   company_id: amazon.id },
-  { user_id: david.id, team_id: dpd_drivers.id,       company_id: dpd.id },
-  { user_id: emma.id,  team_id: dpd_drivers.id,       company_id: dpd.id },
-  { user_id: emma.id,  team_id: dpd_operations.id,    company_id: dpd.id }
+  {user_id: alice.id, team_id: amazon_warehouse.id,  company_id: amazon.id},
+  {user_id: bob.id,   team_id: amazon_warehouse.id,  company_id: amazon.id},
+  {user_id: bob.id,   team_id: amazon_operations.id, company_id: amazon.id},
+  {user_id: carol.id, team_id: amazon_managers.id,   company_id: amazon.id},
+  {user_id: david.id, team_id: dpd_drivers.id,       company_id: dpd.id},
+  {user_id: emma.id,  team_id: dpd_drivers.id,       company_id: dpd.id},
+  {user_id: emma.id,  team_id: dpd_operations.id,    company_id: dpd.id}
 ])
 
 puts "Registering physical devices..."
@@ -120,15 +119,15 @@ Locker.create!(
 puts "Granting team access to lockers..."
 
 LockerTeamPermission.insert_all!([
-  { locker_id: amazon_locker_1.id, team_id: amazon_warehouse.id,  company_id: amazon.id, created_at: now, updated_at: now },
-  { locker_id: amazon_locker_1.id, team_id: amazon_managers.id,   company_id: amazon.id, created_at: now, updated_at: now },
-  { locker_id: amazon_locker_2.id, team_id: amazon_warehouse.id,  company_id: amazon.id, created_at: now, updated_at: now },
-  { locker_id: amazon_locker_2.id, team_id: amazon_operations.id, company_id: amazon.id, created_at: now, updated_at: now },
-  { locker_id: amazon_locker_3.id, team_id: amazon_managers.id,   company_id: amazon.id, created_at: now, updated_at: now },
-  { locker_id: dpd_locker_1.id,    team_id: dpd_drivers.id,       company_id: dpd.id,    created_at: now, updated_at: now },
-  { locker_id: dpd_locker_1.id,    team_id: dpd_operations.id,    company_id: dpd.id,    created_at: now, updated_at: now },
-  { locker_id: dpd_locker_2.id,    team_id: dpd_drivers.id,       company_id: dpd.id,    created_at: now, updated_at: now },
-  { locker_id: dpd_locker_2.id,    team_id: dpd_operations.id,    company_id: dpd.id,    created_at: now, updated_at: now }
+  {locker_id: amazon_locker_1.id, team_id: amazon_warehouse.id,  company_id: amazon.id, created_at: now, updated_at: now},
+  {locker_id: amazon_locker_1.id, team_id: amazon_managers.id,   company_id: amazon.id, created_at: now, updated_at: now},
+  {locker_id: amazon_locker_2.id, team_id: amazon_warehouse.id,  company_id: amazon.id, created_at: now, updated_at: now},
+  {locker_id: amazon_locker_2.id, team_id: amazon_operations.id, company_id: amazon.id, created_at: now, updated_at: now},
+  {locker_id: amazon_locker_3.id, team_id: amazon_managers.id,   company_id: amazon.id, created_at: now, updated_at: now},
+  {locker_id: dpd_locker_1.id,    team_id: dpd_drivers.id,       company_id: dpd.id,    created_at: now, updated_at: now},
+  {locker_id: dpd_locker_1.id,    team_id: dpd_operations.id,    company_id: dpd.id,    created_at: now, updated_at: now},
+  {locker_id: dpd_locker_2.id,    team_id: dpd_drivers.id,       company_id: dpd.id,    created_at: now, updated_at: now},
+  {locker_id: dpd_locker_2.id,    team_id: dpd_operations.id,    company_id: dpd.id,    created_at: now, updated_at: now}
 ])
 
 puts "Creating action history..."
@@ -153,8 +152,8 @@ LockerAction.create!(locker: dpd_locker_2, user: nil, company: dpd, action: :ope
 amazon_locker_1.update_columns(last_status_changed_at: 1.hour.ago + 2.seconds,     last_status_changed_by_id: bob.id)
 amazon_locker_2.update_columns(last_status_changed_at: 2.hours.ago,                last_status_changed_by_id: nil)
 amazon_locker_3.update_columns(last_status_changed_at: amazon_locker_3.created_at, last_status_changed_by_id: nil)
-dpd_locker_1.update_columns(   last_status_changed_at: 45.minutes.ago + 2.seconds, last_status_changed_by_id: david.id)
-dpd_locker_2.update_columns(   last_status_changed_at: 1.hour.ago,                 last_status_changed_by_id: nil)
+dpd_locker_1.update_columns(last_status_changed_at: 45.minutes.ago + 2.seconds, last_status_changed_by_id: david.id)
+dpd_locker_2.update_columns(last_status_changed_at: 1.hour.ago,                 last_status_changed_by_id: nil)
 
 puts
 puts "Seed completed successfully."
@@ -182,5 +181,4 @@ Locker.active.includes(:company, :physical_device).find_each do |locker|
   owner = locker.unassigned? ? "UNASSIGNED" : locker.company.name
   puts "  #{locker.name} [#{locker.device_id}] -- #{locker.status} -- #{owner}"
 end
-
 end # ActiveRecord::Base.transaction
