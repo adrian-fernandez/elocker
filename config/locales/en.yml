@@ -13,6 +13,7 @@ en:
     switcher:
       aria_label: "Switch user"
       platform_badge: "platform"
+      loading: "Loading..."
 
   flash:
     user_switched: "Switched to %{name}."

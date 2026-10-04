@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   resource :session, only: :update
+  get "switcher/users", to: "sessions#switcher_users", as: :switcher_users
 
   namespace :admin do
     resources :companies, only: :index

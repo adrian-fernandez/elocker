@@ -35,41 +35,17 @@
       </ul>
 
       <div class="dropdown">
-        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<%= t('navbar.switcher.aria_label') %>">
+        <button class="btn btn-outline-light dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="<%= t('navbar.switcher.aria_label') %>">
           <%= current_user.name %>
           <span class="badge text-bg-secondary ms-1"><%= current_user.company.name %></span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <%
-            companies_with_users =
-              User
-                .includes(:company)
-                .to_a
-                .group_by(&:company)
-                .sort_by { |company, _| [company.platform_owner? ? 0 : 1, company.name] }
-          %>
-          <% companies_with_users.each_with_index do |(company, users), i| %>
-            <% if i.positive? %>
-              <li><hr class="dropdown-divider"></li>
-            <% end %>
-            <li>
-              <h6 class="dropdown-header">
-                <%= company.name %>
-                <% if company.platform_owner? %>
-                  <span class="badge text-bg-primary ms-1"><%= t("navbar.switcher.platform_badge") %></span>
-                <% end %>
-              </h6>
-            </li>
-            <% users.sort_by(&:name).each do |user| %>
-              <li>
-                <%= button_to user.name,
-                      session_path,
-                      params: { user_id: user.id },
-                      method: :patch,
-                      class: "dropdown-item #{'active' if user.id == current_user.id}",
-                      form: { class: "m-0" } %>
-              </li>
-            <% end %>
+          <%= turbo_frame_tag "user-switcher", loading: "lazy", src: switcher_users_path do %>
+            <li class="dropdown-item text-secondary small"><%= t("navbar.switcher.loading") %></li>
           <% end %>
         </ul>
       </div>
