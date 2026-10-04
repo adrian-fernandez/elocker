@@ -1,4 +1,11 @@
 class LockerAction < ApplicationRecord
+  # The DB-level PK is composite (id, created_at) — required by the monthly
+  # RANGE partitioning on created_at. The `id` BIGSERIAL is still globally
+  # unique thanks to the shared sequence, so we expose it as the single
+  # primary key for ActiveRecord. Without this, Rails emits
+  # `COUNT(DISTINCT [id, created_at])` which is invalid SQL.
+  self.primary_key = :id
+
   belongs_to :locker
   belongs_to :user, optional: true
   belongs_to :company, optional: true

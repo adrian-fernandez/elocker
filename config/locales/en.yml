@@ -59,9 +59,6 @@ en:
     next: "»"
     page_of: "%{page} / %{total}"
     showing_html: "Showing <strong>%{from}</strong>–<strong>%{to}</strong> of <strong>%{total}</strong>"
-    showing_count:
-      one: "Showing 1 result"
-      other: "Showing %{count} results"
     empty: "No results"
 
   admin:
