@@ -270,10 +270,10 @@ en:
       confirm_close: "Close this locker?"
       transfer: "Transfer device"
       disabled_hint: "Already %{status}; no action available."
-      force_dropdown_aria: "Force state"
+      force_summary: "Device out of sync?"
       force_open: "Force open"
       force_close: "Force close"
-      force_hint: "Re-sync with the device if the app's state is out of date."
+      force_hint: "Resend the command even if the app thinks the state already matches. Use when the device acted out of band and the app's state drifted."
       confirm_force_open: "Force the device to open? Use this when the app shows closed but the device is open."
       confirm_force_close: "Force the device to close? Use this when the app shows open but the device is closed."
     transfer:

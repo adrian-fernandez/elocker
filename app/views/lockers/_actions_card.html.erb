@@ -3,11 +3,10 @@
   # - locker, open_path, close_path, transfer_path
   # - force_open_path, force_close_path
   #
-  # The split button exposes the "normal" action as the primary button and
-  # tucks the *inverse* Force action behind a dropdown chevron. This lets
-  # admins re-sync the app's state with a device that drifted out of band
-  # (missed response, flaky network) without hiding the dangerous option
-  # as the main CTA.
+  # The primary (natural) action is the big button at the top. The inverse
+  # Force action is tucked inside a <details> disclosure with explanatory
+  # copy — available but intentionally low-prominence, since it bypasses
+  # state validation and should only be used to recover from drift.
   if locker.closed?
     main_label = t("locker.actions.open")
     main_path = open_path
@@ -28,40 +27,28 @@
 %>
 <div class="card">
   <div class="card-header fw-semibold"><%= t("locker.actions.heading") %></div>
-  <div class="card-body d-grid gap-2">
-    <div class="btn-group w-100" role="group">
-      <%= button_to main_label,
-            main_path,
-            method: :post,
-            class: "#{main_class} flex-grow-1",
-            form: {class: "flex-grow-1 m-0"},
-            data: {turbo_confirm: main_confirm} %>
+  <div class="card-body">
+    <%= button_to main_label,
+          main_path,
+          method: :post,
+          class: "#{main_class} w-100",
+          data: {turbo_confirm: main_confirm} %>
 
-      <button type="button"
-              class="<%= main_class %> dropdown-toggle dropdown-toggle-split flex-grow-0"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-label="<%= t('locker.actions.force_dropdown_aria') %>">
-        <span class="visually-hidden"><%= t("locker.actions.force_dropdown_aria") %></span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <%= button_to force_label,
-                force_path,
-                method: :post,
-                class: "dropdown-item",
-                form: {class: "m-0"},
-                data: {turbo_confirm: force_confirm} %>
-        </li>
-        <li>
-          <div class="dropdown-item-text small text-secondary" style="max-width: 20rem;">
-            <%= t("locker.actions.force_hint") %>
-          </div>
-        </li>
-      </ul>
-    </div>
+    <details class="mt-3">
+      <summary class="small text-secondary" style="cursor: pointer;">
+        <%= t("locker.actions.force_summary") %>
+      </summary>
+      <p class="small text-secondary mt-2 mb-2"><%= t("locker.actions.force_hint") %></p>
+      <%= button_to force_label,
+            force_path,
+            method: :post,
+            class: "btn btn-sm btn-outline-secondary w-100",
+            form: {class: "m-0"},
+            data: {turbo_confirm: force_confirm} %>
+    </details>
 
     <% if transfer_path %>
+      <hr class="my-3">
       <%= link_to t("locker.actions.transfer"),
             transfer_path,
             class: "btn btn-outline-primary btn-sm w-100" %>
