@@ -67,7 +67,8 @@ module Lockers
           locker: @locker,
           user: @user,
           company: @locker.company,
-          action: request_action
+          action: request_action,
+          forced: @force
         )
       end
 

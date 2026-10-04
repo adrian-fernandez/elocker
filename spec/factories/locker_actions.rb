@@ -26,5 +26,9 @@ FactoryBot.define do
     trait :by_platform_owner do
       user { build(:user, :platform_owner) }
     end
+
+    trait :forced do
+      forced { true }
+    end
   end
 end

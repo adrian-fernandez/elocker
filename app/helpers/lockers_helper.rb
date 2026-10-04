@@ -26,11 +26,14 @@ module LockersHelper
     tag.span(t("lockers.status.#{status}"), class: classes.join(" "))
   end
 
-  # Renders a Bootstrap badge for a locker action enum value.
-  def locker_action_badge(action)
+  # Renders a Bootstrap badge for a LockerAction. Request actions that
+  # were forced get the "Force " prefix via a dedicated i18n key; device
+  # responses (opened/closed) are never forced.
+  def locker_action_badge(locker_action)
+    key = locker_action.forced? ? "force_#{locker_action.action}" : locker_action.action
     tag.span(
-      t("locker.activity.actions.#{action}"),
-      class: "badge #{ACTION_BADGE_CLASS.fetch(action.to_s, DEFAULT_BADGE_CLASS)}"
+      t("locker.activity.actions.#{key}"),
+      class: "badge #{ACTION_BADGE_CLASS.fetch(locker_action.action, DEFAULT_BADGE_CLASS)}"
     )
   end
 

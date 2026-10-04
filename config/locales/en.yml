@@ -260,6 +260,8 @@ en:
       actions:
         open_request: "Open requested"
         close_request: "Close requested"
+        force_open_request: "Force Open requested"
+        force_close_request: "Force Close requested"
         opened: "Opened"
         closed: "Closed"
     actions:

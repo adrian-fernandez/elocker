@@ -86,7 +86,8 @@ CREATE TABLE public.locker_actions (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 )
 PARTITION BY RANGE (created_at);
 
@@ -121,7 +122,8 @@ CREATE TABLE public.locker_actions_2026_07 (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 );
 
 
@@ -136,7 +138,8 @@ CREATE TABLE public.locker_actions_2026_08 (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 );
 
 
@@ -151,7 +154,8 @@ CREATE TABLE public.locker_actions_2026_09 (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 );
 
 
@@ -166,7 +170,8 @@ CREATE TABLE public.locker_actions_2026_10 (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 );
 
 
@@ -181,7 +186,8 @@ CREATE TABLE public.locker_actions_2026_11 (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 );
 
 
@@ -196,7 +202,8 @@ CREATE TABLE public.locker_actions_2026_12 (
     company_id bigint,
     action integer NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    forced boolean DEFAULT false NOT NULL
 );
 
 
@@ -1367,6 +1374,7 @@ ALTER TABLE ONLY public.teams_users
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261004120000'),
 ('20261003140000'),
 ('20261002151657'),
 ('20261002151550'),

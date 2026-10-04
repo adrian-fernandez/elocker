@@ -16,7 +16,7 @@
       <%= link_to action.locker.name, locker_href, class: "text-decoration-none" %>
     </td>
   <% end %>
-  <td><%= locker_action_badge(action.action) %></td>
+  <td><%= locker_action_badge(action) %></td>
   <td>
     <% if action.user %>
       <%= linked_user_name(action.user, linked: admin) %>

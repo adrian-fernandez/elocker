@@ -117,6 +117,29 @@ RSpec.describe Lockers::Operators::Open do
         described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:), force: true)
       }.to change(LockerAction, :count).by(2)
     end
+
+    it "marks the request action as forced; response stays non-forced" do
+      locker.update!(status: :open)
+      support = create(:user, :platform_owner)
+
+      described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:), force: true)
+
+      request_action = LockerAction.where(locker:, action: :open_request).last
+      response_action = LockerAction.where(locker:, action: :opened).last
+
+      expect(request_action).to be_forced
+      expect(response_action).not_to be_forced
+    end
+  end
+
+  describe "non-force (regular) path" do
+    it "writes forced=false on the request action" do
+      support = create(:user, :platform_owner)
+
+      described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
+
+      expect(LockerAction.where(locker:, action: :open_request).last).not_to be_forced
+    end
   end
 
   describe "row-level lock" do
