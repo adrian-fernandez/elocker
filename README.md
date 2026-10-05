@@ -168,6 +168,19 @@ required scope over breadth of extras.
 - **CSV / NDJSON export** of the activity log for BI / compliance.
 - **Mobile-polished UI**, pretty 404/500 pages, secondary locale
   (`es.yml` scaffold is already there).
+- **Time-zone audit**. Today the whole stack runs on the Rails default
+  (UTC: storage, display, filter boundaries). That is correct and
+  consistent, but a real deployment needs an explicit decision across at
+  least three axes: (1) the *physical* locker's local time -- a device
+  in Tokyo vs. one in Madrid may both open at "09:00" locally but those
+  are different UTC instants, and support queries like "all opens between
+  08:00 and 10:00 local" need per-locker TZ metadata; (2) the viewer's
+  current TZ -- a reviewer in London expects timestamps and the "today"
+  date-range filter to match THEIR calendar, not the server's; (3)
+  cross-TZ roaming for staff who travel. Pending work: pick an approach
+  (per-locker TZ column, browser-detected cookie for the viewer, or
+  both), add specs that pin DST and boundary behaviour, and document the
+  invariants.
 
 ---
 
