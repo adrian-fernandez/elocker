@@ -147,6 +147,10 @@ jobs:
           # at a dedicated `elocker_test` database on the CI postgres
           # service, never dev or prod.
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/elocker_test
+          # Coverage is measured by the `test` job which runs the full
+          # suite. This job runs only spec/system/, so the SimpleCov
+          # minimum-coverage check would always fail here.
+          NO_COVERAGE: "1"
         run: |
           bin/rails db:test:prepare
           bundle exec rspec spec/system/
