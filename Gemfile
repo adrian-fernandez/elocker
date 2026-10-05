@@ -82,7 +82,7 @@ end
 group :development, :test do
   gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
-  gem "shoulda-matchers", "~> 6.4"
+  gem "shoulda-matchers", "~> 8.0"
   gem "prosopite", "~> 2.1"
   gem "pg_query"
 
