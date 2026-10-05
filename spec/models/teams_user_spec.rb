@@ -4,9 +4,9 @@ RSpec.describe TeamsUser, type: :model do
   describe "uniqueness on (team_id, user_id)" do
     it "forbids duplicate memberships" do
       company = create(:company)
-      team = create(:team, company: company)
-      user = create(:user, company: company)
-      create(:teams_user, team: team, user: user, company_id: company.id)
+      team = create(:team, company:)
+      user = create(:user, company:)
+      create(:teams_user, team:, user:, company_id: company.id)
 
       duplicate_sql = <<~SQL
         INSERT INTO teams_users (user_id, team_id, company_id)

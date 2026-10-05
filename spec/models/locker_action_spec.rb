@@ -10,14 +10,14 @@ RSpec.describe LockerAction, type: :model do
   describe "company_matches_locker validation" do
     it "accepts a nil company when the locker is unassigned" do
       locker = create(:locker, :unassigned)
-      action = build(:locker_action, locker: locker, company_id: nil, user: build(:user, :platform_owner))
+      action = build(:locker_action, locker:, company_id: nil, user: build(:user, :platform_owner))
 
       expect(action).to be_valid
     end
 
     it "rejects a mismatched company" do
       locker = create(:locker)
-      action = build(:locker_action, locker: locker, company_id: create(:company).id)
+      action = build(:locker_action, locker:, company_id: create(:company).id)
 
       expect(action).not_to be_valid
       expect(action.errors[:company_id]).to be_present
@@ -38,8 +38,26 @@ RSpec.describe LockerAction, type: :model do
   describe "user is optional for device-generated responses" do
     it "accepts nil user on :opened" do
       locker = create(:locker)
-      action = build(:locker_action, :opened, locker: locker, user: nil)
+      action = build(:locker_action, :opened, locker:, user: nil)
       expect(action).to be_valid
+    end
+  end
+
+  describe "user_matches_action_type validation" do
+    it "requires a user for request actions" do
+      locker = create(:locker)
+      action = build(:locker_action, :open_request, locker:, user: nil)
+
+      expect(action).not_to be_valid
+      expect(action.errors[:user].first).to include("required for open_request")
+    end
+
+    it "forbids a user on device-generated responses" do
+      locker = create(:locker)
+      action = build(:locker_action, :closed, locker:, user: build(:user, company: locker.company))
+
+      expect(action).not_to be_valid
+      expect(action.errors[:user].first).to include("must be nil for closed")
     end
   end
 
@@ -64,7 +82,7 @@ RSpec.describe LockerAction, type: :model do
       amazon_locker  = create(:locker, company: amazon)
       platform_user  = create(:user, :platform_owner)
 
-      action = LockerAction.new(
+      action = described_class.new(
         locker: amazon_locker,
         user: platform_user,
         company_id: amazon.id,

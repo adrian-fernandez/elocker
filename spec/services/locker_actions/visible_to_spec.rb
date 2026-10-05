@@ -24,8 +24,8 @@ RSpec.describe LockerActions::VisibleTo do
       let(:tenant_user) do
         user = create(:user, company: amazon)
         team = create(:team, company: amazon)
-        create(:teams_user, user: user, team: team, company_id: amazon.id)
-        create(:locker_team_permission, locker: amazon_locker, team: team, company_id: amazon.id)
+        create(:teams_user, user:, team:, company_id: amazon.id)
+        create(:locker_team_permission, locker: amazon_locker, team:, company_id: amazon.id)
         user
       end
 

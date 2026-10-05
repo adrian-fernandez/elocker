@@ -9,8 +9,8 @@ RSpec.describe "Lockers end-to-end flow", type: :system do
     team = create(:team, company: amazon)
     device = create(:physical_device, device_id: "AMZ-TEST")
     @locker = create(:locker, physical_device: device, company: amazon, name: "A1", status: :closed)
-    create(:teams_user, user: tenant, team: team, company_id: amazon.id)
-    create(:locker_team_permission, locker: @locker, team: team, company_id: amazon.id)
+    create(:teams_user, user: tenant, team:, company_id: amazon.id)
+    create(:locker_team_permission, locker: @locker, team:, company_id: amazon.id)
   end
 
   def login_as(user)

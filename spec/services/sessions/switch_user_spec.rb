@@ -6,7 +6,7 @@ RSpec.describe Sessions::SwitchUser do
       session = {}
       user = create(:user)
 
-      result = described_class.call(user_id: user.id, session: session)
+      result = described_class.call(user_id: user.id, session:)
 
       expect(result).to eq(user)
       expect(session[:user_id]).to eq(user.id)
@@ -16,7 +16,7 @@ RSpec.describe Sessions::SwitchUser do
       session = {user_id: 999}
       user = create(:user)
 
-      described_class.call(user_id: user.id, session: session)
+      described_class.call(user_id: user.id, session:)
 
       expect(session[:user_id]).to eq(user.id)
     end

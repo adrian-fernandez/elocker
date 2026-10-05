@@ -22,7 +22,7 @@ RSpec.describe Company, type: :model do
 
     it "allows many tenants" do
       create_list(:company, 3)
-      expect(Company.count).to eq(3)
+      expect(described_class.count).to eq(3)
     end
   end
 end

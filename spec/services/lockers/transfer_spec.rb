@@ -25,7 +25,7 @@ RSpec.describe Lockers::Transfer do
 
       it "wipes team permissions of the outgoing contract" do
         team = create(:team, company: amazon)
-        create(:locker_team_permission, locker: original, team: team, company_id: amazon.id)
+        create(:locker_team_permission, locker: original, team:, company_id: amazon.id)
 
         expect {
           described_class.call(physical_device: device, company: dpd, name: "D7", by: platform)
@@ -102,6 +102,31 @@ RSpec.describe Lockers::Transfer do
         expect {
           described_class.call(physical_device: device, company: amazon, name: "", by: platform)
         }.to raise_error(described_class::InvalidTransferError, /Name/)
+      end
+    end
+
+    context "when the device has no prior contract" do
+      it "opens the first contract without archiving anything" do
+        described_class.call(physical_device: device, company: amazon, name: "A1", by: platform)
+
+        new_locker = device.lockers.find_by(ended_at: nil)
+        expect(new_locker).to be_present
+        expect(new_locker.company).to eq(amazon)
+        expect(new_locker.name).to eq("A1")
+        expect(device.lockers.where.not(ended_at: nil)).to be_empty
+      end
+    end
+
+    context "when the only change is the name under the same company" do
+      it "archives the old contract and opens a renamed one" do
+        original = create(:locker, physical_device: device, company: amazon, name: "A1")
+
+        described_class.call(physical_device: device, company: amazon, name: "A1-renamed", by: platform)
+
+        expect(original.reload.ended_at).to be_present
+        new_locker = device.lockers.find_by(ended_at: nil)
+        expect(new_locker.name).to eq("A1-renamed")
+        expect(new_locker.company).to eq(amazon)
       end
     end
   end

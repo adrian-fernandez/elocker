@@ -25,8 +25,37 @@ RSpec.describe Locker, type: :model do
       live     = create(:locker)
       archived = create(:locker, :archived)
 
-      expect(Locker.active).to contain_exactly(live)
-      expect(Locker.historical).to contain_exactly(archived)
+      expect(described_class.active).to contain_exactly(live)
+      expect(described_class.historical).to contain_exactly(archived)
+    end
+  end
+
+  describe "#active?" do
+    it "is true while ended_at is nil and false once set" do
+      live     = build(:locker, ended_at: nil)
+      archived = build(:locker, :archived)
+
+      expect(live).to be_active
+      expect(archived).not_to be_active
+    end
+  end
+
+  describe "ended_at validation" do
+    it "rejects an ended_at before started_at" do
+      locker = build(:locker, started_at: Time.current, ended_at: 1.hour.ago)
+
+      expect(locker).not_to be_valid
+      expect(locker.errors[:ended_at]).to include("must be after started_at")
+    end
+  end
+
+  describe "company_is_tenant validation" do
+    it "forbids pointing a locker at the platform-owner company" do
+      platform = create(:company, :platform)
+      locker   = build(:locker, company: platform)
+
+      expect(locker).not_to be_valid
+      expect(locker.errors[:company]).to include("cannot be the platform owner")
     end
   end
 

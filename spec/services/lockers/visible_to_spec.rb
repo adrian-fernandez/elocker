@@ -15,13 +15,13 @@ RSpec.describe Lockers::VisibleTo do
 
     context "when the user is a tenant" do
       let(:company)   { create(:company) }
-      let(:team)      { create(:team, company: company) }
-      let(:user)      { create(:user, company: company) }
-      let!(:in_scope) { create(:locker, company: company) }
+      let(:team)      { create(:team, company:) }
+      let(:user)      { create(:user, company:) }
+      let!(:in_scope) { create(:locker, company:) }
 
       before do
-        create(:teams_user, user: user, team: team, company_id: company.id)
-        create(:locker_team_permission, locker: in_scope, team: team, company_id: company.id)
+        create(:teams_user, user:, team:, company_id: company.id)
+        create(:locker_team_permission, locker: in_scope, team:, company_id: company.id)
       end
 
       it "returns lockers accessible via their team membership" do
@@ -30,8 +30,8 @@ RSpec.describe Lockers::VisibleTo do
       end
 
       it "excludes lockers whose teams the user does not belong to" do
-        other_team   = create(:team, company: company)
-        other_locker = create(:locker, company: company)
+        other_team   = create(:team, company:)
+        other_locker = create(:locker, company:)
         create(:locker_team_permission, locker: other_locker, team: other_team, company_id: company.id)
 
         result = described_class.call(user:)

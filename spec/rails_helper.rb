@@ -23,7 +23,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.infer_spec_type_from_file_location!
 
-  config.around(:each) do |example|
+  config.around do |example|
     ActiveRecord::Base.transaction do
       example.run
       raise ActiveRecord::Rollback

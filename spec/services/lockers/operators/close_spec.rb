@@ -2,18 +2,18 @@ require "rails_helper"
 
 RSpec.describe Lockers::Operators::Close do
   let(:company) { create(:company) }
-  let(:locker)  { create(:locker, company: company, status: :open) }
+  let(:locker)  { create(:locker, company:, status: :open) }
   let(:support) { create(:user, :platform_owner) }
 
   it "transitions an open locker to closed" do
     expect {
-      described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+      described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
     }.to change { locker.reload.status }.from("open").to("closed")
   end
 
   it "records close_request + closed actions" do
     expect {
-      described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+      described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
     }.to change(LockerAction, :count).by(2)
 
     actions = LockerAction.order(:id).last(2)
@@ -25,7 +25,7 @@ RSpec.describe Lockers::Operators::Close do
     locker.update!(status: :closed)
 
     expect {
-      described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+      described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
     }.to raise_error(Lockers::Operators::Base::InvalidStateError, /already closed/)
   end
 
@@ -33,7 +33,7 @@ RSpec.describe Lockers::Operators::Close do
     stranger = create(:user)
 
     expect {
-      described_class.call(locker: locker, user: stranger, api: Lockers::Api::Mock.new(locker: locker))
+      described_class.call(locker:, user: stranger, api: Lockers::Api::Mock.new(locker:))
     }.to raise_error(Lockers::Operators::Base::NotAllowedError)
   end
 end

@@ -1,8 +1,10 @@
 require "rails_helper"
 
 RSpec.describe Lockers::Api::Mock do
+  subject(:driver) { described_class.new(locker:) }
+
   let(:locker) { build_stubbed(:locker) }
-  subject(:driver) { described_class.new(locker: locker) }
+
 
   describe "#open" do
     it "returns a successful response" do

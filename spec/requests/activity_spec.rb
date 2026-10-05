@@ -21,10 +21,10 @@ RSpec.describe "Activity", type: :request do
       amazon = create(:company)
       user   = create(:user, company: amazon)
       team   = create(:team, company: amazon)
-      create(:teams_user, user: user, team: team, company_id: amazon.id)
+      create(:teams_user, user:, team:, company_id: amazon.id)
 
       visible_locker = create(:locker, company: amazon)
-      create(:locker_team_permission, locker: visible_locker, team: team, company_id: amazon.id)
+      create(:locker_team_permission, locker: visible_locker, team:, company_id: amazon.id)
 
       hidden_locker  = create(:locker, company: amazon)  # same company, no permission
 

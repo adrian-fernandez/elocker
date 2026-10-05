@@ -11,8 +11,8 @@ RSpec.describe Team, type: :model do
   describe "uniqueness" do
     it "forbids duplicate team names within one company" do
       company = create(:company)
-      create(:team, name: "Warehouse", company: company)
-      duplicate = build(:team, name: "Warehouse", company: company)
+      create(:team, name: "Warehouse", company:)
+      duplicate = build(:team, name: "Warehouse", company:)
 
       expect { duplicate.save(validate: false) }
         .to raise_error(ActiveRecord::RecordNotUnique)

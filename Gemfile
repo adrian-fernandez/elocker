@@ -50,8 +50,21 @@ group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  # Omakase Ruby styling + perf/rspec extensions.
   gem "rubocop-rails-omakase", require: false
+  gem "rubocop-performance", require: false
+  gem "rubocop-rspec", require: false
+
+  # Lint ERB templates for unsafe interpolation / html_safe leaks.
+  gem "erb_lint", require: false
+
+  # Blocks dangerous migrations (NOT NULL without default, un-indexed FKs,
+  # concurrent-index pitfalls on PG).
+  gem "strong_migrations"
+
+  # Rake task that cross-checks models vs. schema (missing NOT NULL,
+  # unique indexes behind validates uniqueness, FKs behind belongs_to).
+  gem "database_consistency", require: false
 end
 
 group :development do
@@ -72,4 +85,7 @@ group :development, :test do
   gem "shoulda-matchers", "~> 6.4"
   gem "prosopite", "~> 2.1"
   gem "pg_query"
+
+  # Profiler + accelerators for RSpec (let_it_be, factory profiler, FPROF=1).
+  gem "test-prof"
 end

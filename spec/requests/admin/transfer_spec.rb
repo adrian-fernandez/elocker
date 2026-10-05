@@ -88,7 +88,7 @@ RSpec.describe "Admin locker transfer", type: :request do
 
       expect(response).to redirect_to(transfer_admin_locker_path(locker))
       follow_redirect!
-      expect(flash[:alert]).to match(/Nothing to transfer/)
+      expect(flash[:alert]).to include('Nothing to transfer')
     end
 
     it "returns 403 to tenants" do
@@ -99,6 +99,29 @@ RSpec.describe "Admin locker transfer", type: :request do
       post "/admin/lockers/#{locker.id}/transfer", params: {company_id: amazon.id, name: "x"}
 
       expect(response).to have_http_status(:forbidden)
+    end
+
+    it "renders the forbidden page when the Transfer service itself rejects authorization" do
+      locker = create(:locker, company: amazon)
+      allow(::Lockers::Transfer).to receive(:call)
+        .and_raise(::Lockers::Transfer::NotAllowedError, "nope")
+
+      post "/admin/lockers/#{locker.id}/transfer",
+           params: {company_id: amazon.id, name: "A1"}
+
+      expect(response).to have_http_status(:forbidden)
+      expect(response.body).to include("Access denied")
+    end
+  end
+
+  describe "operator flow via /admin/lockers/:id/open" do
+    it "uses the admin locker_route helper when redirecting back after an operation" do
+      locker = create(:locker, company: amazon, status: :closed)
+
+      post "/admin/lockers/#{locker.id}/open"
+
+      expect(response).to redirect_to(admin_locker_path(locker))
+      expect(locker.reload).to be_open
     end
   end
 end

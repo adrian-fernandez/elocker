@@ -2,14 +2,14 @@ require "rails_helper"
 
 RSpec.describe Lockers::Operators::Open do
   let(:company) { create(:company) }
-  let(:locker)  { create(:locker, company: company, status: :closed) }
+  let(:locker)  { create(:locker, company:, status: :closed) }
 
   describe "authorization" do
     it "raises NotAllowedError when the user cannot see the locker" do
       stranger = create(:user)
 
       expect {
-        described_class.call(locker: locker, user: stranger, api: Lockers::Api::Mock.new(locker: locker))
+        described_class.call(locker:, user: stranger, api: Lockers::Api::Mock.new(locker:))
       }.to raise_error(Lockers::Operators::Base::NotAllowedError)
     end
 
@@ -18,7 +18,7 @@ RSpec.describe Lockers::Operators::Open do
 
       expect {
         begin
-          described_class.call(locker: locker, user: stranger, api: Lockers::Api::Mock.new(locker: locker))
+          described_class.call(locker:, user: stranger, api: Lockers::Api::Mock.new(locker:))
         rescue Lockers::Operators::Base::NotAllowedError
           nil
         end
@@ -29,15 +29,15 @@ RSpec.describe Lockers::Operators::Open do
       support = create(:user, :platform_owner)
 
       expect {
-        described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+        described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
       }.not_to raise_error
     end
 
     it "allows a tenant user with team access" do
-      user = tenant_user_with_access(locker: locker, company: company)
+      user = tenant_user_with_access(locker:, company:)
 
       expect {
-        described_class.call(locker: locker, user: user, api: Lockers::Api::Mock.new(locker: locker))
+        described_class.call(locker:, user:, api: Lockers::Api::Mock.new(locker:))
       }.not_to raise_error
     end
   end
@@ -48,7 +48,7 @@ RSpec.describe Lockers::Operators::Open do
       support = create(:user, :platform_owner)
 
       expect {
-        described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+        described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
       }.to raise_error(Lockers::Operators::Base::InvalidStateError, /already open/)
     end
   end
@@ -58,13 +58,13 @@ RSpec.describe Lockers::Operators::Open do
 
     it "transitions the locker to open" do
       expect {
-        described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+        described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
       }.to change { locker.reload.status }.from("closed").to("open")
     end
 
     it "records a request action by the user and a response action by the device" do
       expect {
-        described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+        described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
       }.to change(LockerAction, :count).by(2)
 
       actions = LockerAction.order(:id).last(2)
@@ -76,21 +76,21 @@ RSpec.describe Lockers::Operators::Open do
   describe "driver failure" do
     let(:support) { create(:user, :platform_owner) }
     let(:failing_api) do
-      double("FailingApi").tap do |d|
+      instance_double(Lockers::Api::Mock).tap do |d|
         allow(d).to receive(:open).and_return(Lockers::Api::Response.failure("timeout"))
       end
     end
 
     it "raises DeviceError" do
       expect {
-        described_class.call(locker: locker, user: support, api: failing_api)
+        described_class.call(locker:, user: support, api: failing_api)
       }.to raise_error(Lockers::Operators::Base::DeviceError, /timeout/)
     end
 
     it "rolls back the request action and does not change status" do
       expect {
         begin
-          described_class.call(locker: locker, user: support, api: failing_api)
+          described_class.call(locker:, user: support, api: failing_api)
         rescue Lockers::Operators::Base::DeviceError
           nil
         end
@@ -147,7 +147,7 @@ RSpec.describe Lockers::Operators::Open do
       support = create(:user, :platform_owner)
       allow(locker).to receive(:lock!).and_call_original
 
-      described_class.call(locker: locker, user: support, api: Lockers::Api::Mock.new(locker: locker))
+      described_class.call(locker:, user: support, api: Lockers::Api::Mock.new(locker:))
 
       expect(locker).to have_received(:lock!).once
     end
@@ -158,7 +158,7 @@ RSpec.describe Lockers::Operators::Open do
       support = create(:user, :platform_owner)
       spy_api = instance_double(Lockers::Api::Mock, open: Lockers::Api::Response.success)
 
-      described_class.call(locker: locker, user: support, api: spy_api)
+      described_class.call(locker:, user: support, api: spy_api)
 
       expect(spy_api).to have_received(:open)
     end
@@ -167,10 +167,10 @@ RSpec.describe Lockers::Operators::Open do
   private
 
   def tenant_user_with_access(locker:, company:)
-    user = create(:user, company: company)
-    team = create(:team, company: company)
-    create(:teams_user, user: user, team: team, company_id: company.id)
-    create(:locker_team_permission, locker: locker, team: team, company_id: company.id)
+    user = create(:user, company:)
+    team = create(:team, company:)
+    create(:teams_user, user:, team:, company_id: company.id)
+    create(:locker_team_permission, locker:, team:, company_id: company.id)
     user
   end
 end

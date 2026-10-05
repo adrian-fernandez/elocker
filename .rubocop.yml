@@ -1,6 +1,10 @@
 inherit_gem:
   rubocop-rails-omakase: rubocop.yml
 
+plugins:
+  - rubocop-performance
+  - rubocop-rspec
+
 AllCops:
   NewCops: enable
   Exclude:
@@ -13,6 +17,37 @@ AllCops:
     - 'storage/**/*'
     - 'node_modules/**/*'
 
+# RSpec style cops that fire on idiomatic specs ("multiple expectations"
+# in a single flow test, "example length" on composition specs) are noise
+# in this codebase. Keep the structural ones (DescribedClass, Verified*)
+# and relax the length-driven ones.
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/ContextWording:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/InstanceVariable:
+  Enabled: false
+
+# shoulda-matchers idiom `it { is_expected.to validate_presence_of(:x) }`
+# is the whole point of the matcher — rejecting implicit subject here
+# would force unnamed `specify {}` blocks that read worse.
+RSpec/ImplicitSubject:
+  Enabled: false
+
 Layout/SpaceInsideArrayLiteralBrackets:
   EnforcedStyle: no_space
 
@@ -24,3 +59,9 @@ Layout/SpaceInsideHashLiteralBraces:
 
 Layout/EmptyLinesAroundBlockBody:
   EnforcedStyle: no_empty_lines
+
+# Enforce the Ruby 3.1+ shorthand `foo:` instead of `foo: foo` in hash
+# literals and keyword arguments. The repeated-name form is noise and
+# obscures the one place where names actually differ.
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
