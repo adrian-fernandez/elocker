@@ -70,7 +70,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -99,17 +99,22 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test
+          # config/database.yml#test reads TEST_DATABASE_URL (not DATABASE_URL)
+          # so the dev container's compose-set DATABASE_URL (which points at
+          # `@db` and the development DB) cannot leak into the test env.
+          # Dev uses elocker_development, test uses elocker_test, prod uses
+          # elocker_production -- the three are never the same database.
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/elocker_test
+        run: |
+          bin/rails db:test:prepare
+          bundle exec rspec --exclude-pattern "spec/system/**/*_spec.rb"
 
   system-test:
     runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -138,10 +143,13 @@ jobs:
       - name: Run System Tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test:system
+          # Same DB separation as the `test` job: TEST_DATABASE_URL points
+          # at a dedicated `elocker_test` database on the CI postgres
+          # service, never dev or prod.
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/elocker_test
+        run: |
+          bin/rails db:test:prepare
+          bundle exec rspec spec/system/
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
