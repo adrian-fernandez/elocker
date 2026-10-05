@@ -42,7 +42,7 @@ docker compose down -v --rmi local && docker image prune -f   # nuke everything
 
 ## What's in this build
 
-### Lo que pedía el enunciado (done)
+### What the brief asked for (done)
 
 - [x] **Multi-tenant model** — Companies, Teams, Users, Lockers with per-team
       access, isolated at the DB level with composite tenant FKs.
@@ -140,7 +140,7 @@ Insert cost matters as much as update cost: every index is "pay once per
 insert" so an unused index is pure overhead, not just a mild
 inefficiency.
 
-### Omitido — out of scope on purpose
+### Out of scope — on purpose
 
 Each item is a 15 to 60-minute add; the trade-off was depth on the
 required scope over breadth of extras.
@@ -171,28 +171,72 @@ required scope over breadth of extras.
 
 ---
 
-## Data model (one picture, no 50-line table)
+## Data model
 
-```
-┌──────────────────┐                 ┌───────────────┐
-│ PhysicalDevice   │                 │     User      │
-│ (hardware)       │                 │               │
-└────────┬─────────┘                 └───────┬───────┘
-         │ 1..N contracts over time          │ HABTM teams_users
-         ▼                                   │
-┌────────────────────────────────┐           │
-│          Locker                │           ▼
-│ (contract: physical_device_id, │     ┌───────────┐
-│  company_id NULLABLE,          │     │   Team    │
-│  started_at, ended_at)         │     └─────┬─────┘
-└──┬────────────────────┬────────┘           │
-   │ perms              │ actions            │
-   ▼                    ▼                    ▼
-┌──────────────────┐  ┌─────────────┐  ┌──────────┐
-│ LockerTeam       │  │ LockerAction│  │ Company  │
-│ Permission       │  └──────┬──────┘  │ (tenant /│
-└────────┬─────────┘         │         │ platform)│
-         └───────────────────┴────────▶└──────────┘
+```mermaid
+erDiagram
+    PhysicalDevice ||--o{ Locker : "1..N contracts over time"
+    Company |o--o{ Locker : "owns (NULL = spare pool)"
+    Company ||--o{ Team : ""
+    Company ||--o{ User : ""
+    Locker ||--o{ LockerTeamPermission : "grants"
+    Team   ||--o{ LockerTeamPermission : "grants"
+    Company ||--o{ LockerTeamPermission : "snapshot"
+    Locker ||--o{ LockerAction : "logs"
+    User   |o--o{ LockerAction : "triggered by (NULL = device event)"
+    Company |o--o{ LockerAction : "snapshot (NULL = unassigned)"
+    Team ||--o{ TeamsUser : ""
+    User ||--o{ TeamsUser : ""
+    Company ||--o{ TeamsUser : "snapshot"
+
+    PhysicalDevice {
+        bigint id PK
+        string device_id UK
+        string model
+    }
+    Locker {
+        bigint id PK
+        bigint physical_device_id FK
+        bigint company_id FK "nullable"
+        string name
+        int    status
+        timestamp started_at
+        timestamp ended_at "NULL = current contract"
+    }
+    Company {
+        bigint id PK
+        string name
+        boolean platform_owner "unique when true"
+    }
+    Team {
+        bigint id PK
+        bigint company_id FK
+        string name
+    }
+    User {
+        bigint id PK
+        bigint company_id FK
+        string name
+    }
+    LockerTeamPermission {
+        bigint locker_id FK
+        bigint team_id FK
+        bigint company_id FK "composite tenant FK"
+    }
+    LockerAction {
+        bigint id PK
+        bigint locker_id FK
+        bigint user_id FK "nullable"
+        bigint company_id FK "snapshot, nullable"
+        int    action
+        boolean forced
+        timestamp created_at
+    }
+    TeamsUser {
+        bigint team_id FK
+        bigint user_id FK
+        bigint company_id FK "composite tenant FK"
+    }
 ```
 
 Only the row with `ended_at IS NULL` is current. A partial unique on
@@ -223,12 +267,13 @@ What's covered:
 
 - Model specs on every table — associations, enums, validations, composite
   tenant FKs (verified via raw SQL inserts that must fail).
-- Service specs — `Pagination`, `VisibleTo`, every `Filter` per
-  `by_*` method, every `Fetcher` end-to-end + with class doubles proving
-  DI, `Operators::Open/Close` happy and failure paths including savepoint
-  rollback on `DeviceError`, `Transfer` across every scenario (brand-new
-  device, rename within the same company, unassign, platform-owner
-  rejection, cross-authorisation).
+- Service specs — `Pagination`, `VisibleTo`, every `Filter` with one
+  example per `by_*` method, and every `Fetcher` end-to-end plus a
+  class-double variant that proves the DI seams work. `Operators::Open`
+  and `Operators::Close` cover the happy path, state validation, and
+  savepoint rollback on `DeviceError`. `Transfer` covers every scenario
+  (brand-new device, rename under the same company, unassign,
+  platform-owner target rejection, and unauthorised caller).
 - Request specs for every controller action, including the force path and
   the forbidden-via-service rescue branch.
 - System specs with Capybara (rack_test) for the open/close + transfer
