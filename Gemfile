@@ -83,7 +83,7 @@ group :development, :test do
   gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
   gem "shoulda-matchers", "~> 8.0"
-  gem "prosopite", "~> 2.1"
+  gem "prosopite", "~> 2.5"
   gem "pg_query"
 
   # Profiler + accelerators for RSpec (let_it_be, factory profiler, FPROF=1).
